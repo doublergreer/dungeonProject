@@ -17,8 +17,6 @@ Inventory::Inventory()
 
     armor_ = 0;
     ingredients_ = 0;
-    gold_ = 0;
-
 }
 
 Inventory::Inventory(string weapons[5], int armor, int ingredients, int gold)
