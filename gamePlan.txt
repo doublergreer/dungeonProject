@@ -1,0 +1,14 @@
+get all player and npc party member names []
+
+set sorcerer anger level to 0 []
+
+go to merchant(assume gold is at 100) []
+
+    side note: maybe use default constructor to initialize inventory and use inventory objs 
+    to update and display merchant menu(see github)
+    in either case, we only need one constructor
+
+after party leaves merchant, initialize inventory with paramaterized constructor []
+set the vectors separately
+
+go on to print main menu, status, map, action menu []
