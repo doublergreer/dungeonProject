@@ -1,5 +1,7 @@
 #include <iostream>
 #include <iomanip>
+#include <chrono>
+#include <thread>
 #include <string>
 #include <vector>
 // #include "Member.h"
@@ -12,6 +14,8 @@
 #define RESET   "\033[0m"
 
 using namespace std;
+using namespace std::this_thread; 
+using namespace std::chrono_literals; 
 
 int main()
 {
@@ -32,27 +36,27 @@ int main()
     }
     game.printInv();
 
-    cout << "Split between the party there is 100 gold pieces." << endl;
-    system("pause");
-    cout << "There is a mearchent that sells all sorts of goods, some things you might want to purchase are:" << endl << endl;
-    system("pause");
+    cout << "Split between the party there are 100 gold pieces." << endl;
+    sleep_for(5s);
+    cout << "There is a merchant that sells all sorts of goods, some things you might want to purchase are:" << endl << endl;
+    sleep_for(5s);
     cout << "- INGREDIENTS. To make food, you have to cook raw ingredients." << endl;
-    system("pause");
+    sleep_for(2s);
     cout << "- COOKWARE. If you want to cook, you have to have cookware first." << endl;
-    system("pause");
+    sleep_for(2s);
     cout << "- WEAPONS. You'll want at least one weapon per party member to fend off monsters." << endl;
-    system("pause");
+    sleep_for(2s);
     cout << "- ARMOR. Armor increases the chances of surviving a monster attack." << endl << endl;
-    system("pause");
+    sleep_for(2s);
     cout << "Your can spend all of your money if you would like to OR you can save some of your money for the adventure that awaits" << endl << endl;
-    system("pause");
+    sleep_for(3s);
 
-    cout << BOLDWHITE << "You run into a merchant while entering the dungeon" << RESET << endl << endl;
-    system("pause");
+    cout << BOLDWHITE << "You've run into a merchant while entering the dungeon!" << RESET << endl << endl;
+    sleep_for(2s);
 
     cout << "If you're looking for a place to buy some goods them you have come to the right place..." << endl;
     cout << "Anythings for sale with enough money" << endl << endl;
-    system("pause");
+    sleep_for(2s);
 
     game.printInv();
 
@@ -155,17 +159,18 @@ int main()
         {
 
         }
-    }while(merchant_menu != 6);
-    
-    if(merchant_menu == 6)
-    {
-        cout << "Are you sure you're finished? You won't be able to buy anything else from me! (y/n)" << endl;
-    }
+        //leave option
+        if(merchant_menu == 6)
+        {
+            char confirmation = 'x';
+            do {
+                //if user says y, set merchant menu to 13, to the terminate do-while loop
+                cout << "Are you sure you're finished? You won't be able to buy anything else from me! (y/n)" << endl;
+                cin >> confirmation;
 
-
-
-
-
-
-    
+                if (confirmation == 'Y' || confirmation == 'y')
+                    merchant_menu = 13;
+            } while (!(confirmation == 'y' || confirmation == 'Y' || confirmation == 'n' || confirmation == 'N'));
+        }
+    }while(merchant_menu != 13);
 }
