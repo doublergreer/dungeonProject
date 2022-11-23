@@ -12,3 +12,13 @@ after party leaves merchant, initialize inventory with paramaterized constructor
 set the vectors separately
 
 go on to print main menu, status, map, action menu []
+
+
+    MAP GENERATION
+        print rooms first
+        print npcs third, check for npcs, rooms, and mosters in positions, check for 0,0 (player should not spawn in a room)
+
+Note: monsters are not printed on the map, seems like you only encounter them if you:
+    1) go into a room
+    2) get unlucky (20% chance each investigation of unexplored space you see a monster? see github)
+    3) pick a fight (an option on actions menu for some reason)

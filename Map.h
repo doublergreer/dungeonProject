@@ -61,6 +61,10 @@ public:
     bool removeNPC(int row, int col);
     bool removeRoom(int row, int col);
     void exploreSpace(int row, int col);
+
+    //generators
+    void spawnRooms();
+    void spawnNPCs();
 };
 
 #endif

@@ -1,6 +1,11 @@
 #include "Map.h"
+#include "miscFunctions.cpp"
 
+#include<chrono>
+#include<thread>
 using namespace std;
+using namespace std::this_thread; 
+using namespace std::chrono_literals; 
 
 Map::Map()
 {
@@ -275,6 +280,10 @@ bool Map::isFreeSpace(int row, int col)
         return false;
     }
     if (isDungeonExit(row, col))
+    {
+        return false;
+    }
+    if (row == 0 && col == 0)
     {
         return false;
     }
@@ -579,5 +588,43 @@ void Map::displayMap()
             }
         }
         cout << endl;
+    }
+}
+
+//spawns 5 rooms randomly
+void Map::spawnRooms() {
+    int row, column;
+    
+    for (int i = 0; i < max_rooms_; i++) {
+        bool success = false;
+        //ensure room is placed in an empty space
+        while (!success) {
+            row = randomNum(0, 12);
+            //cout << "row:" << row << endl;
+            sleep_for(.75s);
+            column = randomNum(0, 12);
+            //cout << "column:" << column << endl;
+            sleep_for(.89s);
+            //addRoom func checks to make sure space is empty, returns false if not
+            success = addRoom(row,column);
+        }
+    }
+}
+
+//spawns 5 NPCS randomly
+void Map::spawnNPCs() {
+    int row, column;
+    
+    for (int i = 0; i < max_npcs_; i++) {
+        bool success = false;
+        //ensure room is placed in an empty space
+        while (!success) {
+            row = randomNum(0, 12);
+            sleep_for(.75s);
+            column = randomNum(0, 12);
+            sleep_for(.89s);
+            //addRoom func checks to make sure space is empty, returns false if not
+            success = addNPC(row,column);
+        }
     }
 }
