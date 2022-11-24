@@ -123,7 +123,8 @@ int main()
         }
 
         if(merchant_menu == 2)
-        {   int num_ingredients;
+        {   
+            int num_ingredients;
 
             while(num_ingredients != 0)
             {
@@ -144,16 +145,79 @@ int main()
                 cout << "";
             }
         }
-
+        //weapon buying menu
+        //buy up to 5 weapons, first player gets first weapon, second gets second... so on
         if(merchant_menu == 3)
         {
+            int weapon_choice = 0, player_index = 0; 
 
+            cout << "I have a plentiful collection of weapons to choose from, what would you like?" << endl << "Note that some of them provide you a special bonus in combat, marked by a (+X).";
+            sleep_for(2s);
+
+            do {
+                cout << "Choose one of the following: " << endl;
+                cout << "\t1. Stone Club [2 Gold]" << endl;
+                cout << "\t2. Iron Spear [2 Gold]" << endl;
+                cout << "3. (+1) Mythril Rapier [5 Gold]" << endl;
+                cout << "4. (+2) Flaming Battle-Axe [15 Gold]" << endl;
+                cout << "5. (+3) Vorpal Longsword [50 Gold]" << endl;
+                cout << "6. Cancel" << endl;
+                cin >> weapon_choice;
+
+                if (weapon_choice == 1 && game.getGold() >= 2) {
+                    game.setGold(game.getGold() - 2); 
+                    game.setWeaponsAt("Stone Club", player_index);
+                    player_index++;
+                } else if (weapon_choice == 1)
+                    cout << "Insufficient Funds" << endl;
+
+                if (weapon_choice == 2 && game.getGold() >= 2) {
+                    game.setGold(game.getGold() - 2); 
+                    game.setWeaponsAt("Iron Spear", player_index);
+                    player_index++;
+                } else if (weapon_choice == 2)
+                    cout << "Insufficient Funds" << endl;
+
+                if (weapon_choice == 3 && game.getGold() >= 5) {
+                    game.setGold(game.getGold() - 5);
+                    game.setWeaponsAt("(+1) Mythril Rapier", player_index);
+                    player_index++;
+                } else if (weapon_choice == 3)
+                    cout << "Insufficient Funds" << endl;
+
+                if (weapon_choice == 4 && game.getGold() >= 15) {
+                    game.setGold(game.getGold() - 5);
+                    game.setWeaponsAt("(+2) Flaming Battle-Axe", player_index);
+                    player_index++;
+                } else if (weapon_choice == 4)
+                    cout << "Insufficient Funds" << endl;
+                
+                if (weapon_choice == 5 && game.getGold() >= 50) {
+                    game.setGold(game.getGold() - 50);
+                    game.setWeaponsAt("(+3) Vorpal Longsword", player_index);
+                    player_index++;
+                } else if (weapon_choice == 5)
+                    cout << "Insufficient Funds" << endl;
+
+            } while (weapon_choice != 6 && player_index < 5);
         }
 
         if(merchant_menu == 4)
         {
+            int armor_choice = 0;
+            cout << "Each suit costs 5 gold. How many suits of armor can I get you? " << endl << "(Enter a positive integer, or 0 to cancel)" << endl;
+            cin >> armor_choice;
 
-        }
+            if (game.getGold() >= armor_choice*5) {
+                 game.setArmor(armor_choice);
+                 game.setGold(game.getGold() - (5*armor_choice));
+                 cout << endl << "Success! Your party now has " << armor_choice << " suits of armor." << endl;
+            }
+            else if (armor_choice > 0 && armor_choice <= 5)
+                cout << "Insufficient Funds" << endl;
+            else    
+                cout << "Invalid Input" << endl;
+        }   
 
         if(merchant_menu == 5)
         {
