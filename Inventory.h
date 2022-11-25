@@ -50,6 +50,9 @@ class Inventory {
         Member getMemberByName(string name);
         Member getMember(int index);
 
+        //monster fight
+        bool monsterFight(Monster m);
+
         //print gold, ingredients, cookware, weapons, armor, and treasures 
         void printInv();
         void statusUpdate(int rooms_cleared, int keys, int anger);

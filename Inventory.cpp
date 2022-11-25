@@ -5,6 +5,7 @@
 #include "Inventory.h"
 #include "Cookware.h"
 #include "Treasure.h"
+#include "Monster.h"
 
 using namespace std;
 
@@ -142,4 +143,12 @@ void Inventory::statusUpdate(int rooms_cleared, int keys, int anger) {
     cout << "________________________________________" << endl;
 }
 
-// void addCookware(vector<Cookware> cookwares);
+//monster fight 
+//random num generator in miscFunctions.cpp
+bool monsterFight(Monster m) 
+{
+
+    return false;
+}
+
+

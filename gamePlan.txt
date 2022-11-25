@@ -25,6 +25,7 @@ Note: monsters are not printed on the map, seems like you only encounter them if
     1) go into a room
     2) get unlucky (20% chance each investigation of unexplored space you see a monster? see github)
     3) pick a fight (an option on actions menu for some reason)
+    4) get a riddle wrong
 
 Also, maybe we turn the merchant menu into an external function of sorts; it would make the 
 price adjustments based on rooms cleared a lot easier i think, plus make program easier to 
@@ -35,4 +36,6 @@ a weapon to the first player, then increment which player to give the next weapo
  This works well enough for the first weapon, but we should add something to buy a weapon
  for a specific member of the party for when we meet merchants in the wild
 
-For ingredients menu, do you think we need a loop? I feel like its kinda unnecessary
+nico: monster fight, misfortune calculator, riddle
+
+ryan: exploration map shit, rooms

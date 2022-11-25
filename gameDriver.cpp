@@ -36,21 +36,21 @@ int main()
     game.printInv();
 
     cout << "Split between your party there are 100 gold pieces." << endl;
-    sleep_for(5s);
+    sleep_for(.7s);
     cout << "There is a merchant that sells all sorts of goods, some things you may want to purchase are:" << endl << endl;
-    sleep_for(5s);
+    sleep_for(.7s);
     cout << "- INGREDIENTS. To make food, you need to cook raw ingredients." << endl;
-    sleep_for(2s);
+    sleep_for(.7s);
     cout << "- COOKWARE. If you want to cook, you need to have cookware first." << endl;
-    sleep_for(2s);
+    sleep_for(.7s);
     cout << "- WEAPONS. You'll want at least one weapon per party member to fend off monsters." << endl;
-    sleep_for(2s);
+    sleep_for(.7s);
     cout << "- ARMOR. Armor increases the chances of surviving a monster attack." << endl << endl;
-    sleep_for(2s);
+    sleep_for(.7s);
     cout << "Your can spend all of your money if you would like to OR you can save some of your money for the adventure that awaits" << endl;
     cout << "There are more merchants along the way. But beware, some merchants in this dungeon are shady characters, and they won't always give you a fair price..." << endl << endl;
    
-    //generation serves as a pause, takes some time to load
+    //generation serves as a pause, takes some time to load, move to game title screen
     map.spawnRooms();
     map.spawnNPCs();
 
@@ -145,6 +145,8 @@ int main()
                 cout << endl << "Success! Your party now has " << game.getIngredients() << " kg of ingredients." << endl << endl << endl;
                 cout << "Thank you for your patronage! What else can I get for you?" << endl;
             }
+            else
+                cout << "Insufficient funds for " << num_ingredients << " ingredients." << endl;
         }
         //weapon buying menu
         //buy up to 5 weapons, first player gets first weapon, second gets second... so on
@@ -193,7 +195,7 @@ int main()
                     cout << "Insufficient Funds" << endl;
 
                 if (weapon_choice == 4 && game.getGold() >= 15) {
-                    game.setGold(game.getGold() - 5);
+                    game.setGold(game.getGold() - 15);
                     game.setWeaponsAt("(+2) Flaming Battle-Axe", player_index);
                     cout << endl << "Success! Player: " << game.getMember(player_index).getName() << " now has a (+2) Flaming Battle-Axe!" << endl;
                     player_index++;
@@ -226,15 +228,15 @@ int main()
                  cout << "Thank you for your patronage! What else can I get for you?" << endl;
             }
             else if (armor_choice > 0 && armor_choice <= 5)
-                cout << "Insufficient Funds" << endl;
+                cout << "Insufficient funds for " << armor_choice << " suits of armor." << endl;
             else    
                 cout << "Invalid Input" << endl;
         }   
         //treasure buying option
         if(merchant_menu == 5)
         {
-            cout << endl << "If you happen to have any of the following items, I'd be happy to take them off your hands." << endl << "Here are my prices:" << endl;
-            cout << "placeholder; we need to get clarification for how this should work lol" << endl;
+            cout << endl << "If you happen to have any of the following items, I'd be happy to take them off your hands." << endl << endl;
+            cout << "Uh... you have no treasures, nice try! " << endl;
         }
         //leave option
         if(merchant_menu == 6)
