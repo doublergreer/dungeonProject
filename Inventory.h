@@ -52,6 +52,7 @@ class Inventory {
 
         //print gold, ingredients, cookware, weapons, armor, and treasures 
         void printInv();
+        void statusUpdate(int rooms_cleared, int keys, int anger);
 
     private:
         string weapons_[5];

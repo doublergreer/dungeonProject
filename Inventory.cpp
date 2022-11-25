@@ -107,7 +107,7 @@ Member Inventory::getMember(int index) {
 }
 
 void Inventory::printInv() {
-    cout << endl << "________________________________________" << endl;
+    cout << "________________________________________" << endl;
     cout << "INVENTORY:" << endl;
     cout << "\tGold: " << gold_ << endl;
     cout << "\tIngredients: " << ingredients_ << " kg"  << endl;
@@ -126,7 +126,20 @@ void Inventory::printInv() {
     cout << "\tTreasures: ";
     for (int i = 0; i < treasures_.size(); i++)
         cout << treasures_.at(i).getName() << "\t";
-    cout << endl << "________________________________________" << endl << endl;
+    cout << endl << "________________________________________" << endl;
+}
+
+//print status each turn
+void Inventory::statusUpdate(int rooms_cleared, int keys, int anger) {
+    cout << "________________________________________" << endl;
+    cout << "STATUS:" << endl;
+    cout << "\tRooms Cleared: " << rooms_cleared << " | Keys: " << keys << " | Anger Level: " << anger << endl;
+    printInv();
+    cout << "PARTY:" << endl;
+
+    for (int i = 0; i < 5; i++) 
+        cout << "\t" << party_[i].getName() << "\t| Fullness: " << party_[i].getFullness() << endl;
+    cout << "________________________________________" << endl;
 }
 
 // void addCookware(vector<Cookware> cookwares);
