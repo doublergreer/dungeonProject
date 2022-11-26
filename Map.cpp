@@ -283,10 +283,6 @@ bool Map::isFreeSpace(int row, int col)
     {
         return false;
     }
-    if (row == 0 && col == 0)
-    {
-        return false;
-    }
     return true;
 }
 

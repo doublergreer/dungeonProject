@@ -227,13 +227,16 @@ int main()
             }
             else if (armor_choice > 0 && armor_choice <= 5)
                 cout << "Insufficient funds for " << armor_choice << " suits of armor." << endl;
-            else    
+            else if (armor_choice < 0)  
                 cout << "Invalid Input" << endl;
+            else if (armor_choice > 5)
+                cout << "You only have 5 players... where are the extra suits going?" << endl << "No suits were purchased. Try again." << endl;
         }   
         //treasure buying option
         if(merchant_menu == 5)
         {
             cout << endl << "If you happen to have any of the following items, I'd be happy to take them off your hands." << endl << endl;
+            sleep_for(1s);
             cout << "Uh... you have no treasures, nice try! " << endl;
             sleep_for(2s);
         }
@@ -304,6 +307,13 @@ int main()
                 }
             }
         }
+
+        if (action_menu == 3) {
+            //pick random monster
+            //run odds and such
+        }
+
+        // if (action_menu == 4)
     } while (action_menu != 5);
     cout << endl << "The adventurers could not make it out of the dungeon." << endl;
 }
