@@ -9,5 +9,5 @@ int randomNum(int first_num, int last_num) {
 
 int misfortuneCalc(int percent_chance)
 {
-
+    return 0;
 }

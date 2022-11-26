@@ -36,9 +36,9 @@ int main()
     game.printInv();
 
     cout << "Split between your party there are 100 gold pieces." << endl;
-    sleep_for(.7s);
+    sleep_for(1.5s);
     cout << "There is a merchant that sells all sorts of goods, some things you may want to purchase are:" << endl << endl;
-    sleep_for(.7s);
+    sleep_for(.1s);
     cout << "- INGREDIENTS. To make food, you need to cook raw ingredients." << endl;
     sleep_for(.7s);
     cout << "- COOKWARE. If you want to cook, you need to have cookware first." << endl;
@@ -46,7 +46,7 @@ int main()
     cout << "- WEAPONS. You'll want at least one weapon per party member to fend off monsters." << endl;
     sleep_for(.7s);
     cout << "- ARMOR. Armor increases the chances of surviving a monster attack." << endl << endl;
-    sleep_for(.7s);
+    sleep_for(.1s);
     cout << "Your can spend all of your money if you would like to OR you can save some of your money for the adventure that awaits" << endl;
     cout << "There are more merchants along the way. But beware, some merchants in this dungeon are shady characters, and they won't always give you a fair price..." << endl << endl;
    
@@ -155,8 +155,6 @@ int main()
             int weapon_choice = 0, player_index = 0; 
 
             cout << endl << endl << "I have a plentiful collection of weapons to choose from, what would you like?" << endl << "Note that some of them provide you a special bonus in combat, marked by a (+X).";
-            sleep_for(2s);
-
             do {
                 cout << endl << "\tChoose one of the following: " << endl;
                 cout << "\t1. Stone Club [2 Gold]" << endl;
@@ -237,6 +235,7 @@ int main()
         {
             cout << endl << "If you happen to have any of the following items, I'd be happy to take them off your hands." << endl << endl;
             cout << "Uh... you have no treasures, nice try! " << endl;
+            sleep_for(2s);
         }
         //leave option
         if(merchant_menu == 6)
@@ -253,7 +252,58 @@ int main()
         }
     }while(merchant_menu != 13);
 
-    game.statusUpdate(rooms_cleared, num_keys, sorcerer_anger);
+    int action_menu = 0, num_turns = 1;
+    //action loop
+    do {
+        game.statusUpdate(rooms_cleared, num_keys, sorcerer_anger);
+        cout << endl;
+        map.displayMap();
 
-    map.displayMap();
+        cout << BOLDWHITE << "Turn " << num_turns << RESET;
+        cout << endl << "ACTIONS:" << endl;
+        cout << "\t1. Move: 1 space in any of the cardinal directions" << endl;
+        cout << "\t2. Investigate: any space that is marked as '-'" << endl;
+        cout << "\t3. Pick a fight: cause a random monster to appear" << endl;
+        cout << "\t4. Cook and Eat: use ingredients to increase fullness" << endl;
+        cout << "\t5. Give Up: accept the dungeon as your new home" << endl;
+        cin >> action_menu;
+
+        if (action_menu == 1) {
+            char wasd = 'l';
+            cout << endl << "\tW = up, A = left, S = down, D = right" << endl;
+            cin >> wasd;
+
+            map.move(wasd);
+            num_turns++;
+        }
+
+        if (action_menu == 2) {
+            if (!(map.isExplored(map.getPlayerRow(), map.getPlayerCol()))) {
+                cout << endl << endl << "\tWould you like to explore the current space?" << endl;
+                cout << "\t\tOutcomes: (only one can occur)" << endl;
+                cout << "\t\t10 percent chance you find a key" << endl;
+                cout << "\t\t20 percent chance you find a treasure" << endl;
+                cout << "\t\t20 percent chance a random monster spawns" << endl;
+                cout << endl << "\tAfter Investigating: 50 percent chance each member's fullness drops by 1" << endl;
+                
+                char explore;
+
+                cout << endl << "y/n?\t";
+                cin >> explore;
+
+                while (explore != 'y' && explore != 'n') {
+                    cout << "Please enter a valid input:\t";
+                    cin >> explore;
+                }
+
+                if (explore == 'y') {
+                    //run odds and stuff
+                    map.exploreSpace(map.getPlayerRow(), map.getPlayerCol());
+                    //incremenent num_turns for each action taken, otherwise pretend turn didnt happen and display menu again
+                    num_turns++;
+                }
+            }
+        }
+    } while (action_menu != 5);
+    cout << endl << "The adventurers could not make it out of the dungeon." << endl;
 }

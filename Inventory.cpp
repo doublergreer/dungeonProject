@@ -1,6 +1,8 @@
 //Authors Nicolas Post and Ryan Greir 
 #include <iostream>
 #include <iostream>
+#include <chrono>
+#include <thread>
 // #include "Member.h"
 #include "Inventory.h"
 #include "Cookware.h"
@@ -8,6 +10,8 @@
 #include "Monster.h"
 
 using namespace std;
+using namespace std::this_thread; 
+using namespace std::chrono_literals; 
 
 Inventory::Inventory()
 {
@@ -135,12 +139,15 @@ void Inventory::statusUpdate(int rooms_cleared, int keys, int anger) {
     cout << "________________________________________" << endl;
     cout << "STATUS:" << endl;
     cout << "\tRooms Cleared: " << rooms_cleared << " | Keys: " << keys << " | Anger Level: " << anger << endl;
+    sleep_for(1.5s);
     printInv();
+    sleep_for(1.5s);
     cout << "PARTY:" << endl;
 
     for (int i = 0; i < 5; i++) 
         cout << "\t" << party_[i].getName() << "\t| Fullness: " << party_[i].getFullness() << endl;
     cout << "________________________________________" << endl;
+    sleep_for(2s);
 }
 
 //monster fight 

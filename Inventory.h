@@ -8,6 +8,7 @@
 #include "Cookware.h"
 #include "Treasure.h"
 #include "Member.h"
+#include "Monster.h"
 using namespace std;
 
 class Inventory {
