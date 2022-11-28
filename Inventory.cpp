@@ -8,6 +8,7 @@
 #include "Cookware.h"
 #include "Treasure.h"
 #include "Monster.h"
+#include "Map.h"
 
 using namespace std;
 using namespace std::this_thread; 
@@ -152,10 +153,74 @@ void Inventory::statusUpdate(int rooms_cleared, int keys, int anger) {
 
 //monster fight 
 //random num generator in miscFunctions.cpp
-bool monsterFight(Monster m) 
+bool Inventory::monsterFight(Monster m) 
 {
+    int num_weapons = 0;
+    int add_1 = 0;
+    int add_2 = 0;
+    int add_3 = 0;
 
-    return false;
+    for (int i = 0; i < 5; i++)
+    {
+        if(weapons_[i] != "")
+        {
+            if(weapons_[i].substr(0,4) == "(+1)")
+            {
+                add_1++;
+            }
+            if(weapons_[i].substr(0,4) == "(+2)")
+            {
+                add_2++;
+            } 
+            if(weapons_[i].substr(0,4) == "(+3)")
+            {
+                add_3++;
+            }
+            num_weapons++;
+        }
+    }
+
+    int weapon_stats = 0; 
+
+    weapon_stats = num_weapons + add_1 + add_2 + add_3;
+
+    int diff_weapon = 0;
+    int diff_bonus = 0;
+
+    for (int i = 0; i < 5; i++)
+    {
+        if (weapons_[i] != weapons_[0] && weapons_[i] != weapons_[1] && weapons_[i] != weapons_[2] && weapons_[i] != weapons_[3] && weapons_[i] != weapons_[4]) 
+        {
+            diff_weapon++;
+        }
+    }
+
+    if (diff_weapon >= num_weapons) 
+    {
+        diff_bonus = 4;
+    }
+    else
+    {
+        diff_bonus = 0;
+    }
+
+    Map random;
+
+    //generate random numbers
+    int r1 = random.randomNum(1, 6);
+    int r2 = random.randomNum(1, 6);
+
+    //actual calculation of the monster fight
+    int monster_fight = (r1 * weapon_stats + diff_bonus) - ((r2 * m.getChallengeRating()) / armor_);
+
+    if(monster_fight > 0)
+    {
+        return true;
+    }
+    //else if(monster_fight <= 0)
+    //{
+        return false;
+    //}
 }
 
 

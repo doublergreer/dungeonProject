@@ -61,10 +61,12 @@ public:
     bool removeNPC(int row, int col);
     bool removeRoom(int row, int col);
     void exploreSpace(int row, int col);
+    void printMoveMenu();
 
     //generators
     void spawnRooms();
     void spawnNPCs();
+    int randomNum(int first_num, int last_num);
 };
 
 #endif

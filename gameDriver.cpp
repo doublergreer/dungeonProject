@@ -9,6 +9,7 @@
 #include "Map.h"
 #include "Inventory.h"
 #include "Cookware.h"
+#include "miscFunctions.cpp"
 #define BOLDWHITE   "\033[1m\033[37m" 
 #define RESET   "\033[0m"
 
@@ -18,11 +19,16 @@ using namespace std::chrono_literals;
 
 int main()
 {
+    //initializers and whatnot
     Inventory game = Inventory();
     Map map;
 
+    string riddles[20][2];
+    readRiddles("riddles.txt", riddles, 20);
+
     int sorcerer_anger = 0, rooms_cleared = 0, num_keys = 0;
     int merchant_menu = 0;
+
 
     //Gets the players name and the name of the party members and makes a member class function 
     cout << "Welcome to the dungeon grand adventurer! What is your name and the name of the party members with you?" << endl;
@@ -255,65 +261,106 @@ int main()
         }
     }while(merchant_menu != 13);
 
-    int action_menu = 0, num_turns = 1;
+    int num_turns = 1;
+    bool quit = false;
     //action loop
     do {
         game.statusUpdate(rooms_cleared, num_keys, sorcerer_anger);
         cout << endl;
         map.displayMap();
 
-        cout << BOLDWHITE << "Turn " << num_turns << RESET;
-        cout << endl << "ACTIONS:" << endl;
-        cout << "\t1. Move: 1 space in any of the cardinal directions" << endl;
-        cout << "\t2. Investigate: any space that is marked as '-'" << endl;
-        cout << "\t3. Pick a fight: cause a random monster to appear" << endl;
-        cout << "\t4. Cook and Eat: use ingredients to increase fullness" << endl;
-        cout << "\t5. Give Up: accept the dungeon as your new home" << endl;
-        cin >> action_menu;
+        //if space is an npc space display npc menu
+        if (map.isNPCLocation(map.getPlayerRow(), map.getPlayerCol())) {
+            int npc_menu = 0; 
+            cout << BOLDWHITE << "Turn " << num_turns << RESET;
+            cout << endl << endl << BOLDWHITE << "\tAN NPC OCCUPIES YOUR CURRENT SPACE! HOW WILL YOU PROCEED?" << endl << RESET;
+            cout << endl << "ACTIONS:" << endl;
+            cout << "\t1. Move Away: 1 space in any of the cardinal directions" << endl;
+            cout << "\t2. Speak to NPC" << endl;
+            cout << "\t3. Pick a fight: cause a random monster to appear" << endl;
+            cout << "\t3. Give Up: accept the dungeon as your new home" << endl;
+            cin >> npc_menu;
 
-        if (action_menu == 1) {
-            char wasd = 'l';
-            cout << endl << "\tW = up, A = left, S = down, D = right" << endl;
-            cin >> wasd;
+            if (npc_menu == 1) {
+                map.printMoveMenu();
+                num_turns++;
+            }
+            //talk to npc
+            if (npc_menu == 2) {
+                //maybe make npc dialogue look different from reguylar text
+                cout << "Hello Travelers. How may I help you today?" << endl;
+                sleep_for(2s);
+                cout << "\t" << game.getMember(0).getName() << ": Hi, we were looking to purchase some goods." << endl;
+                sleep_for(1.5s);
+                cout << "The good news is, I happen to have some goods." << endl;
+                sleep_for(2s);
+                cout << "The bad news is that you need to solve a puzzle in order to use my services..." << endl;
+                sleep_for(3s);
 
-            map.move(wasd);
-            num_turns++;
-        }
-
-        if (action_menu == 2) {
-            if (!(map.isExplored(map.getPlayerRow(), map.getPlayerCol()))) {
-                cout << endl << endl << "\tWould you like to explore the current space?" << endl;
-                cout << "\t\tOutcomes: (only one can occur)" << endl;
-                cout << "\t\t10 percent chance you find a key" << endl;
-                cout << "\t\t20 percent chance you find a treasure" << endl;
-                cout << "\t\t20 percent chance a random monster spawns" << endl;
-                cout << endl << "\tAfter Investigating: 50 percent chance each member's fullness drops by 1" << endl;
-                
-                char explore;
-
-                cout << endl << "y/n?\t";
-                cin >> explore;
-
-                while (explore != 'y' && explore != 'n') {
-                    cout << "Please enter a valid input:\t";
-                    cin >> explore;
-                }
-
-                if (explore == 'y') {
-                    //run odds and stuff
-                    map.exploreSpace(map.getPlayerRow(), map.getPlayerCol());
-                    //incremenent num_turns for each action taken, otherwise pretend turn didnt happen and display menu again
-                    num_turns++;
-                }
+                //get random riddle from array
+                int r = map.randomNum(0, 19);
+                cout << "Here is your riddle: " << endl << "\t" << riddles[r][0] << endl;
             }
         }
-
-        if (action_menu == 3) {
-            //pick random monster
-            //run odds and such
+        //if space is room, display room menu
+        else if (map.isRoomLocation(map.getPlayerRow(), map.getPlayerCol())) {
+            cout << "room menu";
         }
+        //else display normal action menu
+        else {  
+            int action_menu = 0; 
+            cout << BOLDWHITE << "Turn " << num_turns << RESET;
+            cout << endl << "ACTIONS:" << endl;
+            cout << "\t1. Move: 1 space in any of the cardinal directions" << endl;
+            cout << "\t2. Investigate: your current space" << endl;
+            cout << "\t3. Pick a fight: cause a random monster to appear" << endl;
+            cout << "\t4. Cook and Eat: use ingredients to increase fullness" << endl;
+            cout << "\t5. Give Up: accept the dungeon as your new home" << endl;
+            cin >> action_menu;
 
-        // if (action_menu == 4)
-    } while (action_menu != 5);
+            if (action_menu == 1) {
+                map.printMoveMenu();
+                num_turns++;
+            }
+
+            if (action_menu == 2) {
+                if (!(map.isExplored(map.getPlayerRow(), map.getPlayerCol()))) {
+                    cout << endl << endl << "\tWould you like to explore the current space?" << endl;
+                    cout << "\t\tOutcomes: (only one can occur)" << endl;
+                    cout << "\t\t10 percent chance you find a key" << endl;
+                    cout << "\t\t20 percent chance you find a treasure" << endl;
+                    cout << "\t\t20 percent chance a random monster spawns" << endl;
+                    cout << endl << "\tAfter Investigating: 50 percent chance each member's fullness drops by 1" << endl;
+                    
+                    char explore;
+
+                    cout << endl << "y/n?\t";
+                    cin >> explore;
+
+                    while (explore != 'y' && explore != 'n') {
+                        cout << "Please enter a valid input:\t";
+                        cin >> explore;
+                    }
+
+                    if (explore == 'y') {
+                        //run odds and stuff
+                        map.exploreSpace(map.getPlayerRow(), map.getPlayerCol());
+                        //incremenent num_turns for each action taken, otherwise pretend turn didnt happen and display menu again
+                        num_turns++;
+                    }
+                }
+            }
+
+            if (action_menu == 3) {
+                //pick random monster
+                //run odds and such
+            }
+
+            //if (action_menu == 4)
+
+            if (action_menu == 5)
+                quit = true;
+        }
+    } while (!quit);
     cout << endl << "The adventurers could not make it out of the dungeon." << endl;
 }

@@ -47,6 +47,7 @@ void Member::setArmor(bool hasArmor)
 {
     has_armor_ = hasArmor;
 }
+
 //This function will remove a member of the party 
 //It will also remove the weapon they were holding 
 //It will remove one armor from the party if the party has armor

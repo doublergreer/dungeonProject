@@ -1,5 +1,4 @@
 #include "Map.h"
-#include "miscFunctions.cpp"
 
 #include<chrono>
 #include<thread>
@@ -623,4 +622,18 @@ void Map::spawnNPCs() {
             success = addNPC(row,column);
         }
     }
+}
+//moving menu for when player chooses to move
+void Map::printMoveMenu() {
+    char wasd = 'l';
+    cout << endl << "\tW = up, A = left, S = down, D = right" << endl;
+    cin >> wasd;
+
+    move(wasd);
+}
+
+//calculates a random number between two bounds
+int Map::randomNum(int first_num, int last_num) {
+    srand(time(NULL));
+    return (rand() % (last_num - first_num + 1)) + first_num;
 }
