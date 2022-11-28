@@ -57,6 +57,10 @@ class Inventory {
         //print gold, ingredients, cookware, weapons, armor, and treasures 
         void printInv();
         void statusUpdate(int rooms_cleared, int keys, int anger);
+        void merchantMenu(int rooms_cleared);
+
+        //selects a monster to fight
+        Monster monsterPick(int rooms_cleared);
 
     private:
         string weapons_[5];

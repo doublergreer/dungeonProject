@@ -41,3 +41,7 @@ nico: monster fight, misfortune calculator, riddle
 ryan: exploration map shit, rooms
 
 We have to make a point system so that we can write to a file that keeps track and organizes the playthrough score and outputs a leaderboard 
+
+We have to write a function that cooks food and calculates if the cookware breaks 
+
+add odds to monster fight 

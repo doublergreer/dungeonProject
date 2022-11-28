@@ -108,4 +108,3 @@ int Monster::readMonster(string file_name, Monster monster_array[], int arr_size
     return num_monsters;
 }
 
-

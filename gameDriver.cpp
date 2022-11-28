@@ -27,8 +27,6 @@ int main()
     readRiddles("riddles.txt", riddles, 20);
 
     int sorcerer_anger = 0, rooms_cleared = 0, num_keys = 0;
-    int merchant_menu = 0;
-
 
     //Gets the players name and the name of the party members and makes a member class function 
     cout << "Welcome to the dungeon grand adventurer! What is your name and the name of the party members with you?" << endl;
@@ -41,6 +39,7 @@ int main()
     }
     game.printInv();
 
+    //intro
     cout << "Split between your party there are 100 gold pieces." << endl;
     sleep_for(1.5s);
     cout << "There is a merchant that sells all sorts of goods, some things you may want to purchase are:" << endl << endl;
@@ -67,6 +66,10 @@ int main()
     cout << "Anythings for sale with enough money" << endl << endl;
     sleep_for(2s);
     
+    int merchant_menu = 0;
+
+
+    //merchant loop
     do
     {
         game.printInv();
@@ -80,6 +83,7 @@ int main()
         cout << "6. Leave: Make sure you get everything you need, I'm leaving after this sale!" << endl;
         cin >> merchant_menu;
         
+        //cookware
         if(merchant_menu == 1)
         {
             //define cookware objs to be added
@@ -218,7 +222,7 @@ int main()
 
             } while (weapon_choice != 6 && player_index < 5);
         }
-
+        //armor menu
         if(merchant_menu == 4)
         {
             int armor_choice = 0;
@@ -237,6 +241,7 @@ int main()
                 cout << "Invalid Input" << endl;
             else if (armor_choice > 5)
                 cout << "You only have 5 players... where are the extra suits going?" << endl << "No suits were purchased. Try again." << endl;
+                sleep_for(2s);
         }   
         //treasure buying option
         if(merchant_menu == 5)
@@ -277,7 +282,6 @@ int main()
             cout << endl << "ACTIONS:" << endl;
             cout << "\t1. Move Away: 1 space in any of the cardinal directions" << endl;
             cout << "\t2. Speak to NPC" << endl;
-            cout << "\t3. Pick a fight: cause a random monster to appear" << endl;
             cout << "\t3. Give Up: accept the dungeon as your new home" << endl;
             cin >> npc_menu;
 
@@ -300,6 +304,51 @@ int main()
                 //get random riddle from array
                 int r = map.randomNum(0, 19);
                 cout << "Here is your riddle: " << endl << "\t" << riddles[r][0] << endl;
+                string answer;
+                cin >> answer;
+
+                if (answer == riddles[r][1]) {
+                    //open the menu
+                    sleep_for(1s);
+                    cout << endl << "Well... that was alright I guess." << endl << "Here are my offerings:" << endl << endl;
+                    sleep_for(1s);
+                    game.merchantMenu(rooms_cleared);
+                }
+                else {
+                    //spawn a monster n say something mean
+                    sleep_for(1s);
+                    cout << "I am sorry but that is incorrect now you must suffer the consequences for your lack of intellegence." << endl;
+                    sleep_for(1s);
+                    Monster monster = game.monsterPick(rooms_cleared);
+                    //introduce monster
+                    cout << "OH NO! a " << monster.getMonsterName() << " appeared right infront of you and you cannpt escape it! You must fight it!" << endl;
+                    sleep_for(1s);
+                    game.monsterFight(monster);
+                }
+                num_turns++;
+            }
+            // if(npc_menu == 3)
+            // {
+            //     cout << "What's that? Your want to pick a fight with me??? I would love to see you try " << endl;
+            //     Monster monster = game.monsterPick(rooms_cleared);
+            //     cout << "I will summon " << monster.getMonsterName() << endl;
+
+            //     bool outcome =  game.monsterFight(monster);
+                
+            //     if (outcome) {
+            //         cout << "I can't believe you have defeated my monster and in turn defeated me. Curse you! " << endl;
+            //     }
+            //     else
+            //     {
+            //         cout << "You dare challenge me! Awful mistake. Begone!" << endl;
+            //     }
+            //     num_turns++;
+            // }
+            if(npc_menu == 4)
+            {
+                cout << "You give up on your adventure? What a shame, I saw this coming too." << endl;
+                //write game stats to a seperate file to then keep track of leaderboard
+                quit = true;
             }
         }
         //if space is room, display room menu

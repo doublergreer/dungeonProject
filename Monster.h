@@ -25,6 +25,8 @@ class Monster
         //initialize the array (num monsters)
         //for (populate the monster array)
         //make a new monster object for each monster listed
+
+        
     
 
     private:
