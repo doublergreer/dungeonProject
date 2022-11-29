@@ -23,10 +23,17 @@ int main()
     Inventory game = Inventory();
     Map map;
 
+    //treasure objects
+    Treasure silver_ring("Silver Ring", 10);
+    Treasure ruby_necklace("Ruby Necklace", 20);
+    Treasure emerald_bracelet("Emerald Bracelet", 30);
+    Treasure diamond_circlet("Diamond Circlet", 40);
+    Treasure gem_goblet("Gem-encrusted Goblet", 50);
+
     string riddles[20][2];
     readRiddles("riddles.txt", riddles, 20);
 
-    int sorcerer_anger = 0, rooms_cleared = 0, num_keys = 0;
+    int sorcerer_anger = 0, rooms_cleared = 0;
 
     //Gets the players name and the name of the party members and makes a member class function 
     cout << "Welcome to the dungeon grand adventurer! What is your name and the name of the party members with you?" << endl;
@@ -92,45 +99,42 @@ int main()
             Cookware cauldron("Cauldron", 20, .02);
 
             int cookware_choice = 0;
-            
-            while(cookware_choice != 4) {
-                cout << endl << endl << "I have a whole assortment of cookware, what kind would you like?" << endl;
-                cout << "Each type has a different probability of breaking when used, marked with (XX%)." << endl;
-                cout << "\tChoose one of the following:" << endl;
-                cout << "\t1. (25%) Ceramic Pot [2 Gold]" << endl;
-                cout << "\t2. (10%) Frying Pan [10 Gold]" << endl;
-                cout << "\t3. (02%) Cauldron [20 Gold]" << endl;
-                cout << "\t4. Exit Menu" << endl;
-                cin >> cookware_choice;
+            cout << endl << endl << "I have a whole assortment of cookware, what kind would you like?" << endl;
+            cout << "Each type has a different probability of breaking when used, marked with (XX%)." << endl;
+            cout << "\tChoose one of the following:" << endl;
+            cout << "\t1. (25%) Ceramic Pot [2 Gold]" << endl;
+            cout << "\t2. (10%) Frying Pan [10 Gold]" << endl;
+            cout << "\t3. (02%) Cauldron [20 Gold]" << endl;
+            cout << "\t4. Exit Menu" << endl;
+            cin >> cookware_choice;
 
-                if(cookware_choice == 1 && game.getGold() >= 2)
-                {
-                    game.setGold(game.getGold() - 2); 
-                    game.addCookware(ceramic_pot);
-                }
-                else if (cookware_choice == 1)
-                    cout << "Insufficient Funds" << endl;
-
-                if(cookware_choice == 2 && game.getGold() >= 10)
-                {
-                    game.setGold(game.getGold() - 10);
-                    game.addCookware(frying_pan);
-                }
-                else if (cookware_choice == 2)
-                    cout << "Insufficient Funds" << endl;
-                    
-
-                if(cookware_choice == 3 && game.getGold() >= 20)
-                {
-                    game.setGold(game.getGold() - 20);
-                    game.addCookware(cauldron);
-                }
-                else if (cookware_choice == 3)
-                    cout << "Insufficient Funds" << endl;
-
-                if (cookware_choice < 1 || cookware_choice > 4)
-                    cout << "Invalid Input" << endl;
+            if(cookware_choice == 1 && game.getGold() >= 2)
+            {
+                game.setGold(game.getGold() - 2); 
+                game.addCookware(ceramic_pot);
             }
+            else if (cookware_choice == 1)
+                cout << "Insufficient Funds" << endl << "No items were purchased. Try again." << endl;
+
+            if(cookware_choice == 2 && game.getGold() >= 10)
+            {
+                game.setGold(game.getGold() - 10);
+                game.addCookware(frying_pan);
+            }
+            else if (cookware_choice == 2)
+                cout << "Insufficient Funds" << endl << "No items were purchased. Try again." << endl;
+                
+
+            if(cookware_choice == 3 && game.getGold() >= 20)
+            {
+                game.setGold(game.getGold() - 20);
+                game.addCookware(cauldron);
+            }
+            else if (cookware_choice == 3)
+                cout << "Insufficient Funds" << endl << "No items were purchased. Try again." << endl;
+
+            if (cookware_choice < 1 || cookware_choice > 4)
+                cout << "Invalid Input" << endl;
 
         }
         //ingredients menu
@@ -182,7 +186,7 @@ int main()
                     player_index++;
                     cout << "Thank you for your patronage! You have " << game.getGold() << " remaining gold. What else can I get for you?" << endl << endl;
                 } else if (weapon_choice == 1)
-                    cout << "Insufficient Funds" << endl;
+                    cout << "Insufficient Funds" << endl << "No items were purchased. Try again." << endl;
 
                 if (weapon_choice == 2 && game.getGold() >= 2) {
                     game.setGold(game.getGold() - 2); 
@@ -191,7 +195,7 @@ int main()
                     player_index++;
                     cout << "Thank you for your patronage! You have " << game.getGold() << " remaining gold. What else can I get for you?" << endl << endl;
                 } else if (weapon_choice == 2)
-                    cout << "Insufficient Funds" << endl;
+                    cout << "Insufficient Funds" << endl << "No items were purchased. Try again." << endl;
 
                 if (weapon_choice == 3 && game.getGold() >= 5) {
                     game.setGold(game.getGold() - 5);
@@ -200,7 +204,7 @@ int main()
                     player_index++;
                     cout << "Thank you for your patronage! You have " << game.getGold() << " remaining gold. What else can I get for you?" << endl << endl;
                 } else if (weapon_choice == 3)
-                    cout << "Insufficient Funds" << endl;
+                    cout << "Insufficient Funds" << endl << "No items were purchased. Try again." << endl;
 
                 if (weapon_choice == 4 && game.getGold() >= 15) {
                     game.setGold(game.getGold() - 15);
@@ -209,7 +213,7 @@ int main()
                     player_index++;
                     cout << "Thank you for your patronage! You have " << game.getGold() << " remaining gold. What else can I get for you?" << endl << endl;
                 } else if (weapon_choice == 4)
-                    cout << "Insufficient Funds" << endl;
+                    cout << "Insufficient Funds" << endl << "No items were purchased. Try again." << endl;
                 
                 if (weapon_choice == 5 && game.getGold() >= 50) {
                     game.setGold(game.getGold() - 50);
@@ -218,7 +222,7 @@ int main()
                     player_index++;
                     cout << "Thank you for your patronage! You have " << game.getGold() << " remaining gold. What else can I get for you?" << endl << endl;
                 } else if (weapon_choice == 5)
-                    cout << "Insufficient Funds" << endl;
+                    cout << "Insufficient Funds" << endl << "No items were purchased. Try again." << endl;
 
             } while (weapon_choice != 6 && player_index < 5);
         }
@@ -230,7 +234,7 @@ int main()
             cin >> armor_choice;
 
             if (game.getGold() >= armor_choice*5) {
-                 game.setArmor(armor_choice);
+                 game.setArmor(armor_choice + game.getArmor());
                  game.setGold(game.getGold() - (5*armor_choice));
                  cout << endl << "Success! Your party now has " << armor_choice << " suits of armor." << endl;
                  cout << "Thank you for your patronage! What else can I get for you?" << endl;
@@ -270,7 +274,7 @@ int main()
     bool quit = false;
     //action loop
     do {
-        game.statusUpdate(rooms_cleared, num_keys, sorcerer_anger);
+        game.statusUpdate(rooms_cleared, game.getKeys(), sorcerer_anger);
         cout << endl;
         map.displayMap();
 
@@ -370,6 +374,16 @@ int main()
             if (action_menu == 1) {
                 map.printMoveMenu();
                 num_turns++;
+                //call misfortune calculator
+                bool misfortune_check = game.misfortuneCalc(20);
+                if(misfortune_check == true)
+                {
+                    for(int i = 0; i < 5; i++)
+                    {
+                        //remove one fullness from each player
+                        game.getMember(i).setFullness(game.getMember(i).getFullness() - 1);
+                    }
+                }
             }
 
             if (action_menu == 2) {
@@ -393,6 +407,44 @@ int main()
 
                     if (explore == 'y') {
                         //run odds and stuff
+                        int exploreChance = map.randomNum(0,100);
+                        if (exploreChance >= 0 && exploreChance <= 10) {
+                            //bold this
+                            cout << endl << BOLDWHITE << "\tYour party has found a key!" << RESET << endl << endl;
+                            game.setKeys(game.getKeys() + 1);
+                        }
+                        else if (exploreChance > 10 && exploreChance <= 30) {
+                            cout << endl << BOLDWHITE << "\tYour party has found a Treasure!" << RESET << endl << endl;
+                            
+                            //adjusting all treasures by -1
+                            //e.g. this was supposed to be 1 room cleared, but that makes no sense
+                            if (rooms_cleared == 0) {
+                                game.addTreasure(silver_ring);
+                                cout << BOLDWHITE << "\t" << silver_ring.getName() << " has been added to your inventory." << RESET << endl << endl;
+                            }
+                            if (rooms_cleared == 1) {
+                                game.addTreasure(ruby_necklace);
+                                cout << BOLDWHITE << "\t" << ruby_necklace.getName() << " has been added to your inventory." << RESET << endl << endl;
+                            }
+                            if (rooms_cleared == 2) {
+                                game.addTreasure(emerald_bracelet);
+                                cout << BOLDWHITE << "\t" << emerald_bracelet.getName() << " has been added to your inventory." << RESET << endl << endl;
+                            }
+                            if (rooms_cleared == 3) {
+                                game.addTreasure(diamond_circlet);
+                                cout << BOLDWHITE << "\t" << diamond_circlet.getName() << " has been added to your inventory." << RESET << endl << endl;
+                            }
+                            if (rooms_cleared >= 4) {
+                                game.addTreasure(gem_goblet);
+                                cout << BOLDWHITE << "\t" << gem_goblet.getName() << " has been added to your inventory." << RESET << endl << endl;
+                            }
+                        }
+                        else if (exploreChance > 30 && exploreChance <= 50) {
+                            //fight random monster
+                            Monster m = game.monsterPick(rooms_cleared);
+                            cout << BOLDWHITE << "\tOh no! There is a monster occupying this space. You must fight " << m.getMonsterName() << "!" << RESET << endl << endl;
+                            game.monsterFight(m);
+                        }
                         map.exploreSpace(map.getPlayerRow(), map.getPlayerCol());
                         //incremenent num_turns for each action taken, otherwise pretend turn didnt happen and display menu again
                         num_turns++;
@@ -402,6 +454,12 @@ int main()
 
             if (action_menu == 3) {
                 //pick random monster
+                Monster monster = game.monsterPick(rooms_cleared);
+                cout << "A " << monster.getMonsterName() << " appeared!" << endl;
+
+                bool outcome = game.monsterFight(monster);
+                //if(outcome)
+                    //cout win and loot
                 //run odds and such
             }
 

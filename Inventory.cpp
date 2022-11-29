@@ -9,6 +9,8 @@
 #include "Treasure.h"
 #include "Monster.h"
 #include "Map.h"
+#define BOLDWHITE   "\033[1m\033[37m" 
+#define RESET   "\033[0m"
 
 using namespace std;
 using namespace std::this_thread; 
@@ -108,8 +110,40 @@ Member Inventory::getMemberByName(string name) {
     }
     return Member();
 }
+
+//returns member with said name unless it does not exist, else return blank member
+int Inventory::getMemberIndex(string name) {
+    for (int i = 0; i < 5; i++) {
+        if (party_[i].getName() == name) {
+            return i;
+        }
+    }
+    return -1;
+}
+
 Member Inventory::getMember(int index) {
     return party_[index];
+}
+
+void Inventory::setKeys(int keys) {
+    keys_ = keys;
+}
+int Inventory::getKeys() {
+    return keys_;
+}
+
+void Inventory::addDeadMonster(Monster m) {
+    dead_monsters_.push_back(m);
+}
+
+Monster Inventory::getDeadMonster(string name) {
+    for (int i = 0; i < dead_monsters_.size(); i++) {
+        if (dead_monsters_.at(i).getMonsterName() == name) {
+            return dead_monsters_.at(i);
+        }
+        
+    }
+    return Monster();
 }
 
 void Inventory::printInv() {
@@ -197,13 +231,10 @@ bool Inventory::monsterFight(Monster m)
 
     if (diff_weapon >= num_weapons && num_weapons != 0) 
     {
-        cout << "bonus" << endl;
         diff_bonus = 4;
     }
     else
     {
-        cout << "weapon stats: " << weapon_stats << endl;
-        cout << "no bonus" << endl;
         diff_bonus = 0;
     }
 
@@ -213,42 +244,62 @@ bool Inventory::monsterFight(Monster m)
     int r1 = random.randomNum(1, 6);
     sleep_for(2.5s);
     int r2 = random.randomNum(1, 6);
-    cout << "r1: " << r1 << endl;
-    cout << "r2: " << r2 << endl;
 
     //actual calculation of the monster fight
     int monster_fight = ((r1 * weapon_stats + diff_bonus) - ((r2 * m.getChallengeRating()) / armor_));
 
     if(monster_fight > 0)
     {
+        //add gold and food
+        gold_ += (10 * m.getChallengeRating());
+        ingredients_ += (5 * m.getChallengeRating());
+        if(misfortuneCalc(10) == true)
+        {
+            keys_ += 1;
+            cout << endl << BOLDWHITE << "\tYour party has found a key!" << RESET << endl << endl;
+        }
+
+        dead_monsters_.push_back(m);
+
         return true;
     }
-    //else if(monster_fight <= 0)
-    //{
+    else if(monster_fight <= 0)
+    {
+        gold_ += (int)(gold_ * .75);
+        if(ingredients_ - 30 < 0)
+        {
+            ingredients_ = 0;
+        }
+        else
+        {
+           ingredients_ = ingredients_- 30; 
+        }
+        //make sure there is a check to see if the party members die 
         return false;
-    //}
+    }
+    return false;
 }
 
 
 Monster Inventory::monsterPick(int rooms_cleared) {
-    Map rand;
     Monster arr[21];
     arr[0].readMonster("monsters.txt", arr, 21);
 
     if (rooms_cleared == 0) {
-        return arr[rand.randomNum(0,3)];
+        cout << endl << endl << "in" << endl;
+        aliveAtLevel(0, 3, arr);
     }
     else if (rooms_cleared == 1) {
-        return arr[rand.randomNum(4,7)];
+        aliveAtLevel(4, 7, arr);
     }
     else if (rooms_cleared == 2) {
-        return arr[rand.randomNum(8,11)];
+        aliveAtLevel(8, 11, arr);
     }
     else if (rooms_cleared == 3) {
-        return arr[rand.randomNum(12, 15)];
+        aliveAtLevel(12, 15, arr);
     }
-    else if (rooms_cleared == 4) {
-        return arr[rand.randomNum(16, 19)];
+    else if (rooms_cleared >= 4) {
+        aliveAtLevel(16, 19, arr);
     }
     return Monster("error", 0);
 }
@@ -302,7 +353,7 @@ void Inventory::merchantMenu(int rooms_cleared) {
                      addCookware(ceramic_pot);
                 }
                 else if (cookware_choice == 1)
-                    cout << "Insufficient Funds" << endl;
+                    cout << "Insufficient Funds" << endl << "No items were purchased. Try again." << endl;
 
                 if(cookware_choice == 2 &&  getGold() >= (int)(10*price_factor))
                 {
@@ -310,7 +361,7 @@ void Inventory::merchantMenu(int rooms_cleared) {
                      addCookware(frying_pan);
                 }
                 else if (cookware_choice == 2)
-                    cout << "Insufficient Funds" << endl;
+                    cout << "Insufficient Funds" << endl << "No items were purchased. Try again." << endl;
                     
 
                 if(cookware_choice == 3 &&  getGold() >= (int)(20*price_factor))
@@ -319,7 +370,7 @@ void Inventory::merchantMenu(int rooms_cleared) {
                      addCookware(cauldron);
                 }
                 else if (cookware_choice == 3)
-                    cout << "Insufficient Funds" << endl;
+                    cout << "Insufficient Funds" << endl << "No items were purchased. Try again." << endl;
 
                 if (cookware_choice < 1 || cookware_choice > 4)
                     cout << "Invalid Input" << endl;
@@ -355,7 +406,8 @@ void Inventory::merchantMenu(int rooms_cleared) {
         //buy up to 5 weapons, first player gets first weapon, second gets second... so on
         if(merchant_menu == 3)
         {
-            int weapon_choice = 0, player_index = 0; 
+            int weapon_choice = 0, player_index = 0;
+            string player_name; 
 
             cout << endl << endl << "I have a plentiful collection of weapons to choose from, what would you like?" << endl << "Note that some of them provide you a special bonus in combat, marked by a (+X).";
             do {
@@ -368,6 +420,19 @@ void Inventory::merchantMenu(int rooms_cleared) {
                 cout << "\t6. Cancel" << endl;
                 cin >> weapon_choice;
 
+                if (weapon_choice != 6) {
+                    cout << endl << "\tWhich party member would you like to recieve this weapon? (player name)" << endl;
+                    cin >> player_name;
+                }
+
+                while (getMemberByName(player_name).getName() == "") {
+                    cout << endl << "No player found by the name: " << player_name << endl;
+                    cout << "Please enter the name again" << endl;
+                    cin >> player_name;
+                }
+
+                player_index = getMemberIndex(player_name);
+
                 if (weapon_choice == 1 &&  getGold() >= (int)(2*price_factor)) {
                      setGold(getGold() - (int)(2*price_factor)); 
                      setWeaponsAt("Stone Club", player_index);
@@ -375,7 +440,7 @@ void Inventory::merchantMenu(int rooms_cleared) {
                     player_index++;
                     cout << "Thank you for your patronage! You have " <<  getGold() << " remaining gold. What else can I get for you?" << endl << endl;
                 } else if (weapon_choice == 1)
-                    cout << "Insufficient Funds" << endl;
+                    cout << "Insufficient Funds" << endl << "No items were purchased. Try again." << endl;
 
                 if (weapon_choice == 2 &&  getGold() >= (int)(2*price_factor)) {
                      setGold(getGold() - (int)(2*price_factor)); 
@@ -384,7 +449,7 @@ void Inventory::merchantMenu(int rooms_cleared) {
                     player_index++;
                     cout << "Thank you for your patronage! You have " << getGold() << " remaining gold. What else can I get for you?" << endl << endl;
                 } else if (weapon_choice == 2)
-                    cout << "Insufficient Funds" << endl;
+                    cout << "Insufficient Funds" << endl << "No items were purchased. Try again." << endl;
 
                 if (weapon_choice == 3 &&  getGold() >= (int)(5*price_factor)) {
                      setGold( getGold() - (int)(5*price_factor));
@@ -393,7 +458,7 @@ void Inventory::merchantMenu(int rooms_cleared) {
                     player_index++;
                     cout << "Thank you for your patronage! You have " <<  getGold() << " remaining gold. What else can I get for you?" << endl << endl;
                 } else if (weapon_choice == 3)
-                    cout << "Insufficient Funds" << endl;
+                    cout << "Insufficient Funds" << endl << "No items were purchased. Try again." << endl;
 
                 if (weapon_choice == 4 &&  getGold() >= (int)(15*price_factor)) {
                      setGold( getGold() - (int)(15*price_factor));
@@ -402,7 +467,7 @@ void Inventory::merchantMenu(int rooms_cleared) {
                     player_index++;
                     cout << "Thank you for your patronage! You have " <<  getGold() << " remaining gold. What else can I get for you?" << endl << endl;
                 } else if (weapon_choice == 4)
-                    cout << "Insufficient Funds" << endl;
+                    cout << "Insufficient Funds" << endl << "No items were purchased. Try again." << endl;
                 
                 if (weapon_choice == 5 &&  getGold() >= (int)(50*price_factor)) {
                      setGold(getGold() - (int)(50*price_factor));
@@ -411,7 +476,7 @@ void Inventory::merchantMenu(int rooms_cleared) {
                     player_index++;
                     cout << "Thank you for your patronage! You have " <<  getGold() << " remaining gold. What else can I get for you?" << endl << endl;
                 } else if (weapon_choice == 5)
-                    cout << "Insufficient Funds" << endl;
+                    cout << "Insufficient Funds" << endl << "No items were purchased. Try again." << endl;
 
             } while (weapon_choice != 6 && player_index < 5);
         }
@@ -423,7 +488,7 @@ void Inventory::merchantMenu(int rooms_cleared) {
             cin >> armor_choice;
 
             if ( getGold() >= (armor_choice * ((int)(5*price_factor)))) {
-                  setArmor(armor_choice);
+                  setArmor(armor_choice + armor_);
                   setGold( getGold() - armor_choice * ((int)(5*price_factor)));
                  cout << endl << "Success! Your party now has " << armor_choice << " suits of armor." << endl;
                  cout << "Thank you for your patronage! What else can I get for you?" << endl;
@@ -459,4 +524,46 @@ void Inventory::merchantMenu(int rooms_cleared) {
         }
     }while(merchant_menu != 13);
 
+}
+
+bool Inventory::misfortuneCalc(int percent_chance)
+{
+    int reduced_num = percent_chance / 10;
+
+    srand(time(NULL));
+    int rand_num = (rand() % (10 - 1 + 1)) + 1;
+    
+    if(rand_num > 1 && rand_num <= reduced_num)
+    {
+        return true; //there is misfortune 
+    }
+    else
+    {
+        return false; //there is no misfortune
+    }
+}
+
+Monster Inventory::aliveAtLevel(int bound1, int bound2, Monster arr[21]) {
+    Map rand;
+
+    //traverse dead monster vector
+        for(int i = 0; i < 21; i++)
+        {
+            //picking lvl 1 monster
+            int random = rand.randomNum(bound1, bound2); 
+            int not_equal = 0;
+
+            for (int j = 0; j < dead_monsters_.size(); j++)
+            {   
+                //check monter pick isnt on dead monsters
+                if (arr[random].getMonsterName() != dead_monsters_.at(j).getMonsterName())
+                {
+                    not_equal++;
+                }
+            }
+            if (not_equal >= dead_monsters_.size()) {
+                return arr[random];
+            }
+        }
+        return Monster();
 }

@@ -36,12 +36,18 @@ a weapon to the first player, then increment which player to give the next weapo
  This works well enough for the first weapon, but we should add something to buy a weapon
  for a specific member of the party for when we meet merchants in the wild
 
-nico: monster fight, misfortune calculator, riddle
+//nico: monster fight, misfortune calculator, riddle
 
-ryan: exploration map shit, rooms
+//ryan: exploration map shit
+
+rooms
 
 We have to make a point system so that we can write to a file that keeps track and organizes the playthrough score and outputs a leaderboard 
 
 We have to write a function that cooks food and calculates if the cookware breaks 
 
-add odds to monster fight 
+//add odds to monster fight 
+
+when buying armor, make sure to update Member.has_armor_
+
+problem at aliveatlevel func, breaks monsterfight

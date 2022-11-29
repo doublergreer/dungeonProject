@@ -49,7 +49,16 @@ class Inventory {
 
         void setMemberAt(Member m, int index);
         Member getMemberByName(string name);
+        int getMemberIndex(string name);
         Member getMember(int index);
+
+        //setter and getter for keys
+        void setKeys(int keys);
+        int getKeys();
+
+        //setters and getters for dead_monster vector
+        void addDeadMonster(Monster m);
+        Monster getDeadMonster(string name);
 
         //monster fight
         bool monsterFight(Monster m);
@@ -61,6 +70,9 @@ class Inventory {
 
         //selects a monster to fight
         Monster monsterPick(int rooms_cleared);
+        //gets misfortune calculated
+        bool misfortuneCalc(int percent_chance);
+        Monster aliveAtLevel(int bound1, int bound2, Monster arr[21]);
 
     private:
         string weapons_[5];
@@ -68,9 +80,13 @@ class Inventory {
         int armor_;
         int ingredients_;
         int gold_ = 100;
+        int keys_ = 0;
         //vector of cookware objects and treasure objects
         vector<Cookware> cookwares_;
         vector<Treasure> treasures_; 
+
+        //vector of dead monsters for spawning reference
+        vector<Monster> dead_monsters_;
 };
 
 #endif
