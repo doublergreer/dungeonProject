@@ -72,7 +72,13 @@ class Inventory {
         Monster monsterPick(int rooms_cleared);
         //gets misfortune calculated
         bool misfortuneCalc(int percent_chance);
+        void applyMisfortune(bool in_room);
+        
         Monster aliveAtLevel(int bound1, int bound2, Monster arr[21]);
+
+        void death(Member member);
+
+        int doorPuzzle(int choice);
 
     private:
         string weapons_[5];

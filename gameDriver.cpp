@@ -283,7 +283,7 @@ int main()
             int npc_menu = 0; 
             cout << BOLDWHITE << "Turn " << num_turns << RESET;
             cout << endl << endl << BOLDWHITE << "\tAN NPC OCCUPIES YOUR CURRENT SPACE! HOW WILL YOU PROCEED?" << endl << RESET;
-            cout << endl << "ACTIONS:" << endl;
+            cout << endl << "NPC SPACE ACTIONS:" << endl;
             cout << "\t1. Move Away: 1 space in any of the cardinal directions" << endl;
             cout << "\t2. Speak to NPC" << endl;
             cout << "\t3. Give Up: accept the dungeon as your new home" << endl;
@@ -291,6 +291,17 @@ int main()
 
             if (npc_menu == 1) {
                 map.printMoveMenu();
+                //call misfortune calculator
+                bool misfortune_check = game.misfortuneCalc(20);
+                if(misfortune_check == true)
+                {
+                    cout << endl << "\tUnlucky! Each player lost one fullness point." << endl << endl;
+                    for(int i = 0; i < 5; i++)
+                    {
+                        //remove one fullness from each player
+                        game.getMember(i).setFullness(game.getMember(i).getFullness() - 1);
+                    }
+                }
                 num_turns++;
             }
             //talk to npc
@@ -314,7 +325,7 @@ int main()
                 if (answer == riddles[r][1]) {
                     //open the menu
                     sleep_for(1s);
-                    cout << endl << "Well... that was alright I guess." << endl << "Here are my offerings:" << endl << endl;
+                    cout << endl << "Well... that was alright I guess." << endl << endl << "Here are my offerings:" << endl << endl;
                     sleep_for(1s);
                     game.merchantMenu(rooms_cleared);
                 }
@@ -331,23 +342,6 @@ int main()
                 }
                 num_turns++;
             }
-            // if(npc_menu == 3)
-            // {
-            //     cout << "What's that? Your want to pick a fight with me??? I would love to see you try " << endl;
-            //     Monster monster = game.monsterPick(rooms_cleared);
-            //     cout << "I will summon " << monster.getMonsterName() << endl;
-
-            //     bool outcome =  game.monsterFight(monster);
-                
-            //     if (outcome) {
-            //         cout << "I can't believe you have defeated my monster and in turn defeated me. Curse you! " << endl;
-            //     }
-            //     else
-            //     {
-            //         cout << "You dare challenge me! Awful mistake. Begone!" << endl;
-            //     }
-            //     num_turns++;
-            // }
             if(npc_menu == 4)
             {
                 cout << "You give up on your adventure? What a shame, I saw this coming too." << endl;
@@ -357,7 +351,115 @@ int main()
         }
         //if space is room, display room menu
         else if (map.isRoomLocation(map.getPlayerRow(), map.getPlayerCol())) {
-            cout << "room menu";
+            int room_menu = 0; 
+            cout << endl << endl << BOLDWHITE << "\tYOUR CURRENT SPACE IS A ROOM! HOW WILL YOU PROCEED?" << endl << RESET;
+            cout << BOLDWHITE << "Turn " << num_turns << RESET;
+            cout << endl << "ROOM ACTIONS:" << endl;
+            cout << "\t1. Move: 1 space in any of the cardinal directions" << endl;
+            cout << "\t2. Open the door: having a key helps..." << endl;
+            cout << "\t3. Give Up: accept the dungeon as your new home" << endl;
+            cin >> room_menu;
+
+            if (room_menu == 1) {
+                map.printMoveMenu();
+                //call misfortune calculator
+                bool misfortune_check = game.misfortuneCalc(20);
+                if(misfortune_check == true)
+                {
+                    cout << endl << "\tUnlucky! Each player lost one fullness point." << endl << endl;
+                    for(int i = 0; i < 5; i++)
+                    {
+                        //remove one fullness from each player
+                        game.getMember(i).setFullness(game.getMember(i).getFullness() - 1);
+                    }
+                }
+                num_turns++;
+            }
+            if (room_menu == 2) {
+                if (game.getKeys() > 0) {
+                    bool in_room = true;
+                    game.setKeys(game.getKeys() - 1);
+
+                    //pick monster 2 levels higher
+                    Monster m = game.monsterPick(rooms_cleared + 1);
+                    //fight monster 
+                    bool win = game.monsterFight(m);
+
+                    if (win) {
+                        rooms_cleared++;
+                        cout << endl << endl << "Congratulations, you have defeated the monster and cleared room " << rooms_cleared << "!" << endl;
+                        if(game.misfortuneCalc(60)) {
+                            game.applyMisfortune(in_room);
+                        }
+                        map.removeRoom(map.getPlayerRow(), map.getPlayerCol());
+                    }
+                    else {
+                        //monster fighting consequence
+                        if(game.misfortuneCalc(40)) {
+                            game.applyMisfortune(in_room);
+                        }
+                        else {
+                            //no misfortune
+                        }
+                    }
+                } else 
+                {
+                    int game_choice = 0;
+                    int num_lose = 0;
+
+                    cout << "You have attempted to get inside a room without a key, and as a result you have fallen into a trap." << endl << "In order to get out, you must win a game of boulder, parchment, shears." << endl << "If you lose three times, you will suffer the consequences of your foolishness." << endl << endl;
+                    cout << "Pick one option:" << endl;
+                    cout << "\t1. Boulder" << endl;
+                    cout << "\t2. Shears" << endl;
+                    cout << "\t3. Parchment" << endl;
+                    cin >> game_choice;
+
+                    int result = -1;
+
+                    while (result == -1 && num_lose < 3) {
+                        result = game.doorPuzzle(game_choice);
+                        while(result == 0)
+                        {   
+                            cout << "There was a tie, you must go again!" << endl << endl;
+                            cout << "You have attempted to get inside a room without a key, and as a result you have fallen into a trap." << endl << "In order to get out, you must win a game of boulder, parchment, shears." << endl << "If you lose three times, you will suffer the consequences of your foolishness." << endl << endl;
+                            cout << "Pick one option:" << endl;
+                            cout << "\t1. Boulder" << endl;
+                            cout << "\t2. Shears" << endl;
+                            cout << "\t3. Parchment" << endl;
+                            cin >> game_choice;
+
+                            result = game.doorPuzzle(game_choice);
+                        }
+                        if(result == -1)
+                        {
+                            cout << "Your lost! Two more tries remain! " << endl;
+                            num_lose++;
+                        }
+                        else if(result == 1)
+                        {
+                            cout << "You have won!" << endl;
+                        }
+                    }
+                    if (num_lose >= 3) {
+                        //play rpc
+                        int r = map.randomNum(1, 4);
+
+                        cout << endl << BOLDWHITE << "\tUNLUCKY... YOU LOST 3 TIMES" << RESET << endl;
+
+                        //checks that random party member isnt already dead
+                        while (!(game.getMember(r).getName().length() > 0)) {
+                            r = map.randomNum(1, 4);
+                        }
+
+                        cout << endl << game.getMember(r).getName() << " has passed away due to " << game.getMember(0).getName() << "'s  lack of finesse. "<< endl; 
+                        game.death(game.getMember(r));   
+                        
+                    }
+                }
+            }
+            if (room_menu == 3) {
+                quit = true;
+            }
         }
         //else display normal action menu
         else {  
@@ -378,6 +480,7 @@ int main()
                 bool misfortune_check = game.misfortuneCalc(20);
                 if(misfortune_check == true)
                 {
+                    cout << endl << "\tUnlucky! Each player lost one fullness point." << endl << endl;
                     for(int i = 0; i < 5; i++)
                     {
                         //remove one fullness from each player

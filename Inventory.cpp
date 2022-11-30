@@ -317,8 +317,6 @@ void Inventory::merchantMenu(int rooms_cleared) {
 
     do
     {
-        printInv();
-
         cout << "Choose one of the following" << endl;
         cout << "1. Cookware: You will need something to cook those ingredients." << endl;
         cout << "2. Ingredients: To make food, you have to cook raw ingredients. " << endl;
@@ -503,11 +501,15 @@ void Inventory::merchantMenu(int rooms_cleared) {
         }   
         //treasure buying option
         if(merchant_menu == 5)
-        {
+        {   int sell_menu;
+        
             cout << endl << "If you happen to have any of the following items, I'd be happy to take them off your hands." << endl << endl;
-            sleep_for(1s);
-            cout << "Uh... you have no treasures, nice try! " << endl;
-            sleep_for(2s);
+            cout << "1) Silver ring - 10 gold pieces each" << endl;
+            cout << "2) Ruby necklace - 20 gold pieces each" << endl;
+            cout << "3) Emerald bracelet - 30 gold pieces each" << endl;
+            cout << "4) Diamond circlet - 40 gold pieces each" << endl;
+            cout << "5) Gem-encrusted goblet - 50 gold pieces each" << endl;
+            cin >> sell_menu;
         }
         //leave option
         if(merchant_menu == 6)
@@ -522,6 +524,9 @@ void Inventory::merchantMenu(int rooms_cleared) {
                     merchant_menu = 13;
             } while (!(confirmation == 'y' || confirmation == 'Y' || confirmation == 'n' || confirmation == 'N'));
         }
+
+        printInv();
+
     }while(merchant_menu != 13);
 
 }
@@ -540,6 +545,115 @@ bool Inventory::misfortuneCalc(int percent_chance)
     else
     {
         return false; //there is no misfortune
+    }
+}
+
+void Inventory::applyMisfortune(bool in_room) {
+    Map rand;
+    int r = rand.randomNum(0,100);
+
+    if (r > 0 && r <= 30) {
+        //robbed
+        cout << BOLDWHITE << "MISFORTUNE" << RESET << endl;
+        cout << endl << "Oh no! Your party has been robbed." << endl;
+
+        r = rand.randomNum(1,3);
+
+        //lose 10kg ingredients
+        if (r == 1) {
+            cout << endl << "Your party has lost 10kg of ingredients." << endl;
+            if (ingredients_ >= 10)
+                ingredients_ -= 10;
+            else 
+                ingredients_ = 0;
+        }
+        //lose cookware item
+        else if (r == 2) {
+            cout << endl << "Your party has lost 1 cookware item." << endl;
+
+            if (cookwares_.size() > 0){
+                    cookwares_.pop_back();
+            } else
+                cout << endl << "Lucky for you all, there are no cookwares to take" << endl;
+        }
+        //lose armor
+        else if (r == 3) {
+            cout << endl << "Your party has lost 1 piece of armor." << endl;
+            int r2 = rand.randomNum(0,4);
+
+            if (armor_ > 0)  {   
+                while(!(party_[r2].getArmor())) {
+                    r2 = rand.randomNum(0,4);
+                }
+                cout << endl << party_[r2].getName() << " has lost their armor." << endl;
+                party_[r2].setArmor(false);
+                armor_ -= 1;
+            }
+            else
+                cout << endl << "Lucky for you all, there is no armor to take" << endl;
+
+        }
+    }
+
+    //weapon or armor breaks
+    else if (r > 30 && r <= 40) {
+        r = rand.randomNum(0,10);
+        int num_weapons;
+
+        cout << BOLDWHITE << "MISFORTUNE" << RESET << endl;
+
+        //count weapons
+        for (int i = 0; i < 5; i++) {
+            if (weapons_[i].length() > 0) 
+                num_weapons++;
+        }
+
+        //weapon
+        if (r >= 0 && r <=5 && num_weapons > 0) {    
+            while (!(weapons_[r].length() > 0)) {
+                r = rand.randomNum(0,4);
+            }
+            cout << endl << party_[r].getName() << "'s weapon has broken." << endl;
+            weapons_[r] = "";
+        }
+        //armor
+        else if (armor_ > 0){
+            while(!(party_[r].getArmor())) {
+                r = rand.randomNum(0,4);
+            }
+            cout << endl << party_[r].getName() << "'s armor has broken." << endl;
+            party_[r].setArmor(false);
+            armor_ -= 1;
+        }
+        //else, no misfortune
+    }
+    else if (r > 40 && r <= 70) {
+        //food poisoning, party member loses 10 pts hunger
+        r = rand.randomNum(0,4);
+
+        cout << BOLDWHITE << "MISFORTUNE" << RESET << endl;
+        
+        if (party_[r].getFullness() > 10) {
+            cout << endl << party_[r].getName() << " has gotten food poisoning and lost 10 points of fullness!" << endl;
+            party_[r].setFullness(party_[r].getFullness() - 10);
+        }
+        else {
+            cout << endl << party_[r].getName() << " has gotten food poisoning died of hunger immediately!" << endl;
+            death(party_[r]);
+        }
+    }
+    else if (r > 70 && in_room) 
+    {
+        //team member locked in previous room
+        r = rand.randomNum(1, 4);
+
+        cout << BOLDWHITE << "MISFORTUNE" << RESET << endl;
+        
+        while (!(party_[r].getName().length() > 0)) {
+            r = rand.randomNum(1, 4);
+        }
+        cout << endl << party_[r].getName() << " has gotten trapped in the room! Your party must continue on!" << endl; 
+        death(party_[r]);   
     }
 }
 
@@ -567,3 +681,85 @@ Monster Inventory::aliveAtLevel(int bound1, int bound2, Monster arr[21]) {
         }
         return Monster();
 }
+
+
+//This function will remove a member of the party 
+//It will also remove the weapon they were holding 
+//It will remove one armor from the party if the party has armor
+void Inventory::death(Member member)
+{
+    for (int i = 0; i < 5; i++) {
+        if (party_[i].getName() == member.getName()) {
+            party_[i] = Member();
+            party_[i].setFullness(0);
+            weapons_[i] = "";
+            if (member.getArmor()) {
+                armor_ -= 1;
+                member.setArmor(false);
+            }
+        }    
+    }
+}
+
+int Inventory::doorPuzzle(int choice)
+{
+    Map doorgame;
+    int comp_pick = doorgame.randomNum(1, 3);
+
+    int boulder = 1;
+    int shears = 2;
+    int parchment = 3;
+    int num_lose;
+
+    //cout << comp_pick << endl;
+    
+    if(comp_pick == 1)
+    {
+        if(choice == 1)
+        {
+            return 0;
+        }
+        else if(choice == 2)
+        {
+            return -1;
+        }
+        else if(choice == 3)
+        {
+            return 1;
+        }
+    }
+    if(comp_pick == 2)
+    {
+        if(choice == 2)
+        {
+            return 0;
+        }
+        else if(choice == 3)
+        {
+            return -1;
+        }
+        else if(choice == 1)
+        {
+            return 1;
+        }
+    }
+    if(comp_pick == 3)
+    {
+        if(choice == 3)
+        {
+            return 0;
+        }
+        else if(choice == 2)
+        {
+            return -1;
+        }
+        else if(choice == 1)
+        {
+            return 1;
+        }
+        
+    }
+}
+//if (comp picks rock and you pick scissors) 
+// comp wins
+

@@ -33,22 +33,6 @@ int split1(string input_string, char delimiter, string arr[], int arr_size)
     return index + 1;
 }
 
-bool misfortuneCalc(int percent_chance)
-{
-    int reduced_num = percent_chance / 10;
-
-    srand(time(NULL));
-    int rand_num = (rand() % (10 - 1 + 1)) + 1;
-    
-    if(rand_num > 1 && rand_num <= reduced_num)
-    {
-        return true; //there is misfortune 
-    }
-    else
-    {
-        return false; //there is no misfortune
-    }
-}
 
 int readRiddles(string file_name, string riddles[][2], int arr_size) {
     ifstream file;
