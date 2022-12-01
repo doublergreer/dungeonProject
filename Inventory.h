@@ -4,6 +4,7 @@
 
 #include <iostream>
 #include <vector>
+#include <array>
 
 #include "Cookware.h"
 #include "Treasure.h"
@@ -40,6 +41,7 @@ class Inventory {
         Cookware getCookwareAt(int index);
         //adds new cookware object at end of array
         void addCookware(Cookware new_ware);
+        void removeCookware(int index);
 
         //returns vector of treasures, see getCookware()
         vector<Treasure> getTreasures();
@@ -58,6 +60,10 @@ class Inventory {
         //setter and getter for keys
         void setKeys(int keys);
         int getKeys();
+
+        //setter and getter for monsters_killed
+        void setMonstersKilled(int num_monsters);
+        int getMonstersKilled();
 
         //setters and getters for dead_monster vector
         void addDeadMonster(Monster m);
@@ -84,6 +90,10 @@ class Inventory {
 
         int doorPuzzle(int choice);
 
+        void bubbleSort(vector <int> & final_score);
+
+        void writeGameStats(int rooms_cleared, int anger, int num_spaces, int num_turns);
+
     private:
         string weapons_[5];
         Member party_[5];
@@ -91,6 +101,7 @@ class Inventory {
         int ingredients_;
         int gold_ = 100;
         int keys_ = 0;
+        int monsters_killed_ = 0;
         //vector of cookware objects and treasure objects
         vector<Cookware> cookwares_;
         vector<Treasure> treasures_; 

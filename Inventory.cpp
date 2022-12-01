@@ -97,6 +97,10 @@ void Inventory::addCookware(Cookware new_ware) {
     cookwares_.push_back(new_ware);
 }
 
+void Inventory::removeCookware(int index) {
+    cookwares_.erase(cookwares_.begin() + index);
+}
+
 vector<Treasure> Inventory::getTreasures() {
     return treasures_;
 }
@@ -153,6 +157,13 @@ void Inventory::setKeys(int keys) {
 }
 int Inventory::getKeys() {
     return keys_;
+}
+
+void Inventory::setMonstersKilled(int num_monsters) {
+    monsters_killed_ = num_monsters;
+}
+int Inventory::getMonstersKilled() {
+    return monsters_killed_;
 }
 
 void Inventory::addDeadMonster(Monster m) {
@@ -528,22 +539,23 @@ void Inventory::merchantMenu(int rooms_cleared) {
             cout << "Each suit costs " << (int)(5*price_factor) << " gold. How many suits of armor can I get you? " << endl << "(Enter a positive integer, or 0 to cancel)" << endl;
             cin >> armor_choice;
 
-            if ( getGold() >= (armor_choice * ((int)(5*price_factor)))) {
-                for (int i = 0; i < armor_choice || armor_ >= 5;) {
+            if (getGold() >= (armor_choice * ((int)(5*price_factor))) && armor_ + armor_choice <= 5) {
+                for (int i = 0; i < armor_choice && armor_ <= 5;) {
                     if (!(party_[i].getArmor())) {
                         party_[i].setArmor(true);
+                        setArmor(armor_ + 1);
+                        i++;
                     }
                  }
-                  setArmor(armor_choice + armor_);
                   setGold( getGold() - armor_choice * ((int)(5*price_factor)));
-                 cout << endl << "Success! Your party now has " << armor_choice << " suits of armor." << endl;
+                 cout << endl << "Success! Your party now has " << armor_ << " suits of armor." << endl;
                  cout << "Thank you for your patronage! What else can I get for you?" << endl;
             }
-            else if (armor_choice > 0 && armor_choice <= 5)
+            else if (armor_choice > 0 && armor_choice <= 5 && getGold() < (armor_choice * ((int)(5*price_factor))))
                 cout << "Insufficient funds for " << armor_choice << " suits of armor." << endl;
             else if (armor_choice < 0)  
                 cout << "Invalid Input" << endl;
-            else if (armor_choice > 5)
+            else if (armor_choice + armor_ > 5)
                 cout << "You only have 5 players... where are the extra suits going?" << endl << "No suits were purchased. Try again." << endl;
                 
             sleep_for(2s);
@@ -867,3 +879,50 @@ int Inventory::doorPuzzle(int choice)
     }
     return -1;
  }
+
+//swap for bubblesort with pass by reference
+void swap(vector<int>& vec, int startIndex, int endIndex) {
+    // vec.sIndex = 5, vec.eIndex = 1
+    int temp = vec.at(startIndex);
+    vec.at(startIndex) = vec.at(endIndex);
+    vec.at(endIndex) = temp;
+}
+
+//
+ void Inventory::bubbleSort(vector<int>& final_score)
+ {
+    bool swapped = true;
+    do
+    {
+        swapped = false;
+        for(int i = 0; i < final_score.size()-1; i++)
+        {
+            //if left is bigger than right, swap, do this until there are no more swaps
+            if (final_score.at(i) > final_score.at(i+1))
+            {
+                swap(final_score, final_score.at(i), final_score.at(i+1));
+                swapped = true; 
+            }
+        }
+    } while(swapped);
+}
+
+void Inventory::writeGameStats(int rooms_cleared, int anger, int num_spaces, int num_turns)
+{
+    ofstream fout;
+    fout.open("gameStats.txt");
+    {
+        fout << "Name of player: " << party_[0].getName() << endl;
+        fout << "Rooms Cleared: " << rooms_cleared << endl;
+        fout << "Gold pieces remaining: " << gold_ << endl;
+        fout << "Treasure items: ";
+        for(int i = 0; i < treasures_.size(); i++)
+        {
+            treasures_.at(i).getName();
+        }
+        fout << endl << "Number of spaces explored: " << num_spaces << endl;
+        fout << "Number of monsters defeated: " << monsters_killed_ << endl;
+        fout << "Number of turns taken: " << num_turns << endl;
+        fout << "Sorcerers anger level: " << anger << endl;
+    }
+}

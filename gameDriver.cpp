@@ -9,6 +9,7 @@
 #include "Map.h"
 #include "Inventory.h"
 #include "Cookware.h"
+#include "Leaderboard.h"
 #include "miscFunctions.cpp"
 #define BOLDWHITE   "\033[1m\033[37m" 
 #define RESET   "\033[0m"
@@ -34,7 +35,7 @@ int main()
     string riddles[20][2];
     readRiddles("riddles.txt", riddles, 20);
 
-    int sorcerer_anger = 0, rooms_cleared = 0;
+    int sorcerer_anger = 0, rooms_cleared = 0, spaces_explored = 0;
 
     //Gets the players name and the name of the party members and makes a member class function 
     cout << "Welcome to the dungeon grand adventurer! What is your name and the name of the party members with you?" << endl;
@@ -411,6 +412,7 @@ int main()
                 }
                 num_turns++;
                 map.removeNPC(map.getPlayerRow(), map.getPlayerCol());
+                spaces_explored++;
             }
             if(npc_menu == 3)
             {
@@ -466,6 +468,7 @@ int main()
                             game.applyMisfortune(in_room);
                         }
                         map.removeRoom(map.getPlayerRow(), map.getPlayerCol());
+                        spaces_explored++;
                     }
                     else {
                         cout << endl << endl << "Your team failed to defeat the monster." << endl << "You have been kicked out of the room. In order to clear the room you must find another key." << endl;
@@ -671,6 +674,7 @@ int main()
                             cout << endl << "The space appears to be empty..." << endl;
                         }
                         map.exploreSpace(map.getPlayerRow(), map.getPlayerCol());
+                        spaces_explored++;
                         //incremenent num_turns for each action taken, otherwise pretend turn didnt happen and display menu again
                         num_turns++;
                     }
@@ -762,7 +766,7 @@ int main()
                     while(num_ingredients > game.getIngredients())
                     {
                         cout << "You don't have enough ingredients for that big of a meal." << endl;
-                        cout << "enter a smaller amount of ingredients. " << endl;
+                        cout << "Enter a smaller amount of ingredients. " << endl;
                         cin >> num_ingredients;
                     }
                     
@@ -802,7 +806,8 @@ int main()
 
                 if (success == true) {
                     if (game.misfortuneCalc(game.getCookwareAt(cookware_choice-1).getBreakChance())) {
-                        cout << endl << "Unlucky";
+                        cout << endl << "Unlucky... your "<< game.getCookwareAt(cookware_choice-1).getName() << " has broken." << endl;
+                        game.removeCookware(cookware_choice-1);
                     }
                 }
 
@@ -837,10 +842,32 @@ int main()
         cout << endl << "Where has your party gone? You cannot escape the dungeon solo." << endl;
 
     if (sorcerer_anger >= 100)
-        cout << endl << "Game over. You have angered the sorcerer and he has destroyed the dungeon with your party inside it.";
+    {
+        cout << endl << "You have angered the sorcerer and he has destroyed the dungeon with you and your party inside it.";
+        for(int i = 0; i < 5; i++)
+        {
+            game.death(game.getMember(i));
+        }
+    }
     
     if (game.getMember(0).getName().length() == 0) {
         cout << endl << "Your main character has died. How can you escape the dungeon without a leader?" << endl;
     }
+    
+    string leaderboard_name;
+    //prompt user for name for leaderboard here
+    cout << endl << endl << "Enter a name for the leaderboard: \t";
+    cin >> leaderboard_name;
+
+    Leaderboard latest_board(leaderboard_name);
+    latest_board.calculateScore(game.getMonstersKilled(), rooms_cleared, sorcerer_anger);
+
+    //leaderboard writing
+    vector<Leaderboard> leader_vec;
+    leader_vec.push_back(latest_board);
+    latest_board.writeLeaderboard(leader_vec);
+
+    //gamestats writing
+    game.writeGameStats(rooms_cleared, sorcerer_anger, spaces_explored, num_turns);
     
 }

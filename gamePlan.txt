@@ -17,11 +17,11 @@
     //    print rooms first
     //    print npcs third, check for npcs, rooms, and mosters in positions, check for 0,0 (player should not spawn in a room)
 
-Note: monsters are not printed on the map, seems like you only encounter them if you:
-    1) go into a room
-    2) get unlucky (20% chance each investigation of unexplored space you see a monster? see github)
-    3) pick a fight (an option on actions menu for some reason)
-    4) get a riddle wrong
+//Note: monsters are not printed on the map, seems like you only encounter them if you:
+  //  1) go into a room
+  //  2) get unlucky (20% chance each investigation of unexplored space you see a monster? see github)
+  //  3) pick a fight (an option on actions menu for some reason)
+  //  4) get a riddle wrong
 
 //nico: monster fight, misfortune calculator, riddle
 
@@ -29,9 +29,9 @@ Note: monsters are not printed on the map, seems like you only encounter them if
 
 //rooms
 
-We have to make a point system so that we can write to a file that keeps track and organizes the playthrough score and outputs a leaderboard 
+//We have to make a point system so that we can write to a file that keeps track and organizes the playthrough score and outputs a leaderboard 
 
-We have to write a function that cooks food and calculates if the cookware breaks 
+//We have to write a function that cooks food and calculates if the cookware breaks 
 
 //add odds to monster fight 
 
@@ -48,7 +48,7 @@ when we finish the game, we should make sure it is explained well to the player 
 
 //we need to add treasure selling to merchant menu function
 
-You should also save the final stats of the game in a file named results.txt. You can choose the format of this file.
+
 
 //KEEP TRACK OF ARMOR FOR DEATHS AND SUCH
 
@@ -62,14 +62,23 @@ You should also save the final stats of the game in a file named results.txt. Yo
 
 //add who has armor to printInv
 
-copy fight surrender implementation from npc menu and apply to all monster fight scenarios 
+//copy fight surrender implementation from npc menu and apply to all monster fight scenarios 
 
 //copy monster hunger thing to all monster fights (cmd f "monster hunger")
 
-figure out what happens if a player encounters all the monsters on a given level, i think it gives you "error" monster rn 
+//figure out what happens if a player encounters all the monsters on a given level, i think it gives you "error" monster rn 
+
+
+
+//perhaps track monsters slain for leaderboard (number)
 
 slow down room menu; ties into monster fight thingy
 
-perhaps track monsters slain for leaderboard (number)
+//armor merchant menu in inventory.cpp causes infinite loop
 
-armor merchant menu in inventory.cpp causes infinite loop
+FINISH GAME (allow to exit)
+
+You should also save the final stats of the game in a file named results.txt. You can choose the format of this file.
+
+leaderboard order of operations:
+read file into vector, add score to vector, sort vector, print to file, print to screen
