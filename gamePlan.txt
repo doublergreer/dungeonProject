@@ -1,21 +1,21 @@
-get all player and npc party member names []
+//get all player and npc party member names [done]
 
-set sorcerer anger level to 0 []
+//set sorcerer anger level to 0 [done]
 
-go to merchant(assume gold is at 100) []
+//go to merchant(assume gold is at 100) [done]
 
-    side note: maybe use default constructor to initialize inventory and use inventory objs 
-    to update and display merchant menu(see github)
-    in either case, we only need one constructor
+    //side note: maybe use default constructor to initialize inventory and use inventory objs 
+    //to update and display merchant menu(see github)
+    //in either case, we only need one constructor
 
-after party leaves merchant, initialize inventory with paramaterized constructor []
-set the vectors separately
+//after party leaves merchant, initialize inventory with paramaterized constructor []
+//set the vectors separately
 
-go on to print main menu, status, map, action menu []
+//go on to print main menu, status, map, action menu []
 
-    MAP GENERATION
-        print rooms first
-        print npcs third, check for npcs, rooms, and mosters in positions, check for 0,0 (player should not spawn in a room)
+    //MAP GENERATION
+    //    print rooms first
+    //    print npcs third, check for npcs, rooms, and mosters in positions, check for 0,0 (player should not spawn in a room)
 
 Note: monsters are not printed on the map, seems like you only encounter them if you:
     1) go into a room
@@ -27,7 +27,7 @@ Note: monsters are not printed on the map, seems like you only encounter them if
 
 //ryan: exploration map shit
 
-rooms
+//rooms
 
 We have to make a point system so that we can write to a file that keeps track and organizes the playthrough score and outputs a leaderboard 
 
@@ -35,25 +35,41 @@ We have to write a function that cooks food and calculates if the cookware break
 
 //add odds to monster fight 
 
-    when buying armor, make sure to update Member.has_armor_!!!!!!!!!!!!!!!!!!!
+    //when buying armor, make sure to update Member.has_armor_ -> this might be good we should check
 
-problem at aliveatlevel func, breaks monsterfight
+//problem at aliveatlevel func, breaks monsterfight
+^fixed fs
+
 
 when we finish the game, we should make sure it is explained well to the player in the starting menu
 
-    If the team size is not enough to complete the journey (at least one person besides the team leader), the game ends !!!!!!!!!!!!!!!!!
+    //If the team size is not enough to complete the journey (at least one person besides the team leader), the game ends !!!!!!!!!!!!!!!!!
+    ^ i think i did this as well
 
-we need to add treasure selling to merchant menu function
+//we need to add treasure selling to merchant menu function
 
 You should also save the final stats of the game in a file named results.txt. You can choose the format of this file.
 
-KEEP TRACK OF ARMOR FOR DEATHS AND SUCH
+//KEEP TRACK OF ARMOR FOR DEATHS AND SUCH
 
-WIZARD ANGER
+//WIZARD ANGER
+^i think this works alright
 
-find where to check that at least 2 players are alive (maybe end of turn)
-^player 0 + another player
+//find where to check that at least 2 players are alive (maybe end of turn)
+^this should be done i think we need to test 
 
 //Make a scenerio if the player tries to get into a room withough a key 
 
-add who has armor to printInv
+//add who has armor to printInv
+
+copy fight surrender implementation from npc menu and apply to all monster fight scenarios 
+
+//copy monster hunger thing to all monster fights (cmd f "monster hunger")
+
+figure out what happens if a player encounters all the monsters on a given level, i think it gives you "error" monster rn 
+
+slow down room menu; ties into monster fight thingy
+
+perhaps track monsters slain for leaderboard (number)
+
+armor merchant menu in inventory.cpp causes infinite loop

@@ -18,7 +18,8 @@ class Inventory {
 
         //setter and getters for weapons array
         string getWeapons(int index);
-        void setWeaponsAt(string weapon, int index);        
+        void setWeaponsAt(string weapon, int index);  
+        int getNumWeapons();      
 
         //setter and getter for total armor
         int getArmor();
@@ -51,6 +52,8 @@ class Inventory {
         Member getMemberByName(string name);
         int getMemberIndex(string name);
         Member getMember(int index);
+        int getNumMembers();
+        void setMemberFullnessAt(int index, int fullness);
 
         //setter and getter for keys
         void setKeys(int keys);
@@ -67,6 +70,7 @@ class Inventory {
         void printInv();
         void statusUpdate(int rooms_cleared, int keys, int anger);
         void merchantMenu(int rooms_cleared);
+        int findTreausre(string t_name);
 
         //selects a monster to fight
         Monster monsterPick(int rooms_cleared);

@@ -48,6 +48,15 @@ void Inventory::setWeaponsAt(string weapon, int index)
     weapons_[index] = weapon;
 }
 
+int Inventory::getNumWeapons() {
+    int num_weapons = 0;
+    for (int i = 0; i < 5; i++) {
+        if (weapons_[i].length() > 0)
+            num_weapons++;
+    }
+    return num_weapons;
+}
+
 int Inventory::getArmor()
 {
     return armor_;
@@ -123,6 +132,20 @@ int Inventory::getMemberIndex(string name) {
 
 Member Inventory::getMember(int index) {
     return party_[index];
+}
+
+//check num players, counts num players other than user
+int Inventory::getNumMembers() {    
+    int num_players;
+    for (int i = 1; i < 4; i++) {
+        if (party_[i].getName().length() > 0)
+            num_players++;
+    }
+    return num_players;
+}
+
+void Inventory::setMemberFullnessAt(int index, int fullness) {
+    party_[index].setFullness(fullness);
 }
 
 void Inventory::setKeys(int keys) {
@@ -253,6 +276,8 @@ bool Inventory::monsterFight(Monster m)
         //add gold and food
         gold_ += (10 * m.getChallengeRating());
         ingredients_ += (5 * m.getChallengeRating());
+        cout << endl << "\tYour party has defeated the " << m.getMonsterName() << endl;
+        cout << endl << "\tYour party found " << 10 * m.getChallengeRating() << " gold and " << 5 * m.getChallengeRating() << " ingredients!" << endl;
         if(misfortuneCalc(10) == true)
         {
             keys_ += 1;
@@ -265,16 +290,34 @@ bool Inventory::monsterFight(Monster m)
     }
     else if(monster_fight <= 0)
     {
-        gold_ += (int)(gold_ * .75);
+        cout << "Your party has failed to defeat the " << m.getMonsterName() << "!" << endl;
+
+        gold_ = (int)(gold_ * .75);
         if(ingredients_ - 30 < 0)
         {
+            cout << endl << "Your party has lost all its ingredients!" << endl;
             ingredients_ = 0;
         }
         else
         {
-           ingredients_ = ingredients_- 30; 
+            cout << endl << "Your party has lost 30 ingredients!" << endl;
+            ingredients_ = ingredients_- 30; 
         }
-        //make sure there is a check to see if the party members die 
+        //check to see if the party members die 
+        for (int i = 1; i < 4; i++) {
+            if (party_[i].getArmor()) {
+                if (misfortuneCalc(5)) {
+                    cout << endl << party_[i].getName() << " has been slain by the " << m.getMonsterName() << "!" << endl;
+                    death(party_[i]);
+                }
+            } else {
+                if (misfortuneCalc(10)) {
+                    cout << endl << party_[i].getName() << " has been slain by the " << m.getMonsterName() << "!" << endl;
+                    death(party_[i]);
+                }
+            }
+        }
+        dead_monsters_.push_back(m);
         return false;
     }
     return false;
@@ -286,20 +329,19 @@ Monster Inventory::monsterPick(int rooms_cleared) {
     arr[0].readMonster("monsters.txt", arr, 21);
 
     if (rooms_cleared == 0) {
-        cout << endl << endl << "in" << endl;
-        aliveAtLevel(0, 3, arr);
+        return aliveAtLevel(0, 3, arr);
     }
     else if (rooms_cleared == 1) {
-        aliveAtLevel(4, 7, arr);
+        return aliveAtLevel(4, 7, arr);
     }
     else if (rooms_cleared == 2) {
-        aliveAtLevel(8, 11, arr);
+        return aliveAtLevel(8, 11, arr);
     }
     else if (rooms_cleared == 3) {
-        aliveAtLevel(12, 15, arr);
+        return aliveAtLevel(12, 15, arr);
     }
     else if (rooms_cleared >= 4) {
-        aliveAtLevel(16, 19, arr);
+        return aliveAtLevel(16, 19, arr);
     }
     return Monster("error", 0);
 }
@@ -315,8 +357,10 @@ void Inventory::merchantMenu(int rooms_cleared) {
 
     
 
-    do
-    {
+    do {
+        cout << "________________________________________" << endl;
+        cout << "MERCHANT MENU:" << endl;
+        cout << "________________________________________" << endl;
         cout << "Choose one of the following" << endl;
         cout << "1. Cookware: You will need something to cook those ingredients." << endl;
         cout << "2. Ingredients: To make food, you have to cook raw ingredients. " << endl;
@@ -376,8 +420,7 @@ void Inventory::merchantMenu(int rooms_cleared) {
 
         }
         //ingredients menu
-        if(merchant_menu == 2)
-        {   
+        if(merchant_menu == 2){   
             int num_ingredients = -1;
             cout << endl << "I reccomend you purchase at least 10 kg of ingredients per person." << endl << endl;
 
@@ -486,6 +529,11 @@ void Inventory::merchantMenu(int rooms_cleared) {
             cin >> armor_choice;
 
             if ( getGold() >= (armor_choice * ((int)(5*price_factor)))) {
+                for (int i = 0; i < armor_choice || armor_ >= 5;) {
+                    if (!(party_[i].getArmor())) {
+                        party_[i].setArmor(true);
+                    }
+                 }
                   setArmor(armor_choice + armor_);
                   setGold( getGold() - armor_choice * ((int)(5*price_factor)));
                  cout << endl << "Success! Your party now has " << armor_choice << " suits of armor." << endl;
@@ -497,19 +545,66 @@ void Inventory::merchantMenu(int rooms_cleared) {
                 cout << "Invalid Input" << endl;
             else if (armor_choice > 5)
                 cout << "You only have 5 players... where are the extra suits going?" << endl << "No suits were purchased. Try again." << endl;
-                sleep_for(2s);
+                
+            sleep_for(2s);
         }   
-        //treasure buying option
+        //treasure selling option
         if(merchant_menu == 5)
-        {   int sell_menu;
+        {   char sell_menu;
         
-            cout << endl << "If you happen to have any of the following items, I'd be happy to take them off your hands." << endl << endl;
-            cout << "1) Silver ring - 10 gold pieces each" << endl;
-            cout << "2) Ruby necklace - 20 gold pieces each" << endl;
-            cout << "3) Emerald bracelet - 30 gold pieces each" << endl;
-            cout << "4) Diamond circlet - 40 gold pieces each" << endl;
-            cout << "5) Gem-encrusted goblet - 50 gold pieces each" << endl;
-            cin >> sell_menu;
+            if(treasures_.size() > 0)
+            {
+                cout << endl << "I see you have these item(s), I'd be happy to take them off your hands." << endl << endl;
+                for (int i = 0; i < treasures_.size(); i++){
+                    if (treasures_.at(i).getName() == "Silver Ring")
+                        cout << "Silver ring - 10 gold pieces each" << endl;
+
+                    if (treasures_.at(i).getName() == "Ruby Necklace")
+                        cout << "Ruby necklace - 20 gold pieces each" << endl;
+
+                    if (treasures_.at(i).getName() == "Emerald Bracelet")
+                        cout << "Emerald bracelet - 30 gold pieces each" << endl;
+
+                    if (treasures_.at(i).getName() == "Diamond Circlet")
+                        cout << "Diamond circlet - 40 gold pieces each" << endl;
+
+                    if (treasures_.at(i).getName() == "Gem-encrusted Goblet")
+                        cout << "Gem-encrusted goblet - 50 gold pieces each" << endl;
+                }
+
+                cout << endl << "You can sell all your treasures or you can sell none. It's an all in or all out type of deal. " << endl << "Would you like to sell all your treasures? (y/n)" << endl;
+                cin >> sell_menu;
+
+                    if (sell_menu == 'y' || sell_menu == 'Y') {
+                        for (int i = 0; i < treasures_.size(); i++){
+                            if (treasures_.at(i).getName() == "Silver Ring") {
+                                gold_ += 10;
+                            }
+
+                            if (treasures_.at(i).getName() == "Ruby Necklace") {
+                                gold_ += 20;
+                            }
+
+                            if (treasures_.at(i).getName() == "Emerald Bracelet") {
+                                gold_ += 30;
+                            }
+
+                            if (treasures_.at(i).getName() == "Diamond Circlet") {
+                                gold_ += 40;
+                            }
+
+                            if (treasures_.at(i).getName() == "Gem-encrusted Goblet") {
+                                gold_ += 50;
+                            }
+                        }
+                        treasures_.clear();
+                    }
+                    else  {
+                        cout << endl << "OK, sorry you can't commit to anything." << endl << "You can keep your treasures and I'll keep my gold." << endl;
+                    }
+            }
+            else
+                cout << "You have no treasures for me to purchase, nice try!" << endl;
         }
         //leave option
         if(merchant_menu == 6)
@@ -527,9 +622,10 @@ void Inventory::merchantMenu(int rooms_cleared) {
 
         printInv();
 
-    }while(merchant_menu != 13);
+    } while(merchant_menu != 13);
 
 }
+
 
 bool Inventory::misfortuneCalc(int percent_chance)
 {
@@ -554,7 +650,7 @@ void Inventory::applyMisfortune(bool in_room) {
 
     if (r > 0 && r <= 30) {
         //robbed
-        cout << BOLDWHITE << "MISFORTUNE" << RESET << endl;
+        cout << BOLDWHITE << endl << "\tMISFORTUNE" << RESET << endl;
         cout << endl << "Oh no! Your party has been robbed." << endl;
 
         r = rand.randomNum(1,3);
@@ -600,7 +696,7 @@ void Inventory::applyMisfortune(bool in_room) {
         r = rand.randomNum(0,10);
         int num_weapons;
 
-        cout << BOLDWHITE << "MISFORTUNE" << RESET << endl;
+        cout << BOLDWHITE << endl << "\tMISFORTUNE" << RESET << endl;
 
         //count weapons
         for (int i = 0; i < 5; i++) {
@@ -631,7 +727,7 @@ void Inventory::applyMisfortune(bool in_room) {
         //food poisoning, party member loses 10 pts hunger
         r = rand.randomNum(0,4);
 
-        cout << BOLDWHITE << "MISFORTUNE" << RESET << endl;
+        cout << BOLDWHITE << endl << "\tMISFORTUNE" << RESET << endl;
         
         if (party_[r].getFullness() > 10) {
             cout << endl << party_[r].getName() << " has gotten food poisoning and lost 10 points of fullness!" << endl;
@@ -647,7 +743,7 @@ void Inventory::applyMisfortune(bool in_room) {
         //team member locked in previous room
         r = rand.randomNum(1, 4);
 
-        cout << BOLDWHITE << "MISFORTUNE" << RESET << endl;
+        cout << BOLDWHITE << endl << "\tMISFORTUNE" << RESET << endl;
         
         while (!(party_[r].getName().length() > 0)) {
             r = rand.randomNum(1, 4);
@@ -763,3 +859,11 @@ int Inventory::doorPuzzle(int choice)
 //if (comp picks rock and you pick scissors) 
 // comp wins
 
+ int Inventory::findTreausre(string t_name) {
+    for (int i = 0; i < treasures_.size(); i++) {
+        if (treasures_.at(i).getName() == t_name) {
+            return i;
+        }
+    }
+    return -1;
+ }

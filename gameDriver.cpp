@@ -22,6 +22,7 @@ int main()
     //initializers and whatnot
     Inventory game = Inventory();
     Map map;
+    
 
     //treasure objects
     Treasure silver_ring("Silver Ring", 10);
@@ -234,6 +235,12 @@ int main()
             cin >> armor_choice;
 
             if (game.getGold() >= armor_choice*5) {
+                //assign armor to indivivual members
+                for (int i = 0; i < armor_choice && game.getArmor() >= 5;) {
+                    if (!(game.getMember(i).getArmor())) {
+                        game.getMember(i).setArmor(true);
+                    }
+                 }
                  game.setArmor(armor_choice + game.getArmor());
                  game.setGold(game.getGold() - (5*armor_choice));
                  cout << endl << "Success! Your party now has " << armor_choice << " suits of armor." << endl;
@@ -272,6 +279,7 @@ int main()
 
     int num_turns = 1;
     bool quit = false;
+    bool enough_players = true;
     //action loop
     do {
         game.statusUpdate(rooms_cleared, game.getKeys(), sorcerer_anger);
@@ -299,8 +307,11 @@ int main()
                     for(int i = 0; i < 5; i++)
                     {
                         //remove one fullness from each player
-                        game.getMember(i).setFullness(game.getMember(i).getFullness() - 1);
+                        game.setMemberFullnessAt(i, game.getMember(i).getFullness() - 1);
                     }
+                }
+                if (!(map.isExplored(map.getPlayerRow(), map.getPlayerCol()))) {
+                    sorcerer_anger++;
                 }
                 num_turns++;
             }
@@ -308,7 +319,7 @@ int main()
             if (npc_menu == 2) {
                 //maybe make npc dialogue look different from reguylar text
                 cout << "Hello Travelers. How may I help you today?" << endl;
-                sleep_for(2s);
+                sleep_for(.5s);
                 cout << "\t" << game.getMember(0).getName() << ": Hi, we were looking to purchase some goods." << endl;
                 sleep_for(1.5s);
                 cout << "The good news is, I happen to have some goods." << endl;
@@ -322,6 +333,7 @@ int main()
                 string answer;
                 cin >> answer;
 
+                //correct answer
                 if (answer == riddles[r][1]) {
                     //open the menu
                     sleep_for(1s);
@@ -329,22 +341,80 @@ int main()
                     sleep_for(1s);
                     game.merchantMenu(rooms_cleared);
                 }
+                //incorrect answer
                 else {
                     //spawn a monster n say something mean
                     sleep_for(1s);
-                    cout << "I am sorry but that is incorrect now you must suffer the consequences for your lack of intellegence." << endl;
+                    cout << "I am sorry but that is incorrect, the correct answer was: " << riddles[r][1] << endl << "Now you must suffer the consequences for your lack of intellegence." << endl << endl;
                     sleep_for(1s);
                     Monster monster = game.monsterPick(rooms_cleared);
-                    //introduce monster
-                    cout << "OH NO! a " << monster.getMonsterName() << " appeared right infront of you and you cannpt escape it! You must fight it!" << endl;
-                    sleep_for(1s);
-                    game.monsterFight(monster);
+                    
+                    //make sure monster exists
+                    if (monster.getMonsterName() != "error") {    //introduce monster
+                        cout << "OH NO! a " << monster.getMonsterName() << " appeared right infront of you. Escaping it will be difficult." << endl;
+                        sleep_for(1s);
+
+                        int fight_menu = 0;
+                        cout << endl << "You now have two options..." << endl;
+                        cout << "\t1) Attack: this can go well if you are well equipped with weapons and armor" << endl;
+                        cout << "\t2) Surrender: leave one of your party members behind and flee the scene" << endl;
+                        cin >> fight_menu;
+
+                        while (fight_menu != 1 && fight_menu != 2) {
+                            cout << endl << "Invalid Input, please try again." << endl;
+                            cin >> fight_menu;
+                        }
+
+
+                        if (fight_menu == 1 && game.getNumWeapons() > 0) {    
+                            //attack
+                            if (game.monsterFight(monster)) {
+                                cout << endl << "\tYou and your party have managed to win the fight with " << monster.getMonsterName() << ". Congratulations!" << endl; 
+                            } else if (game.getNumWeapons() <= 0) {
+                                cout << endl << "Your party has no weapons. You must now surrender." << endl;
+                                fight_menu = 2;
+                            }
+                        }
+
+                        if (fight_menu == 2) {
+                            if (game.getNumMembers() >= 1) {
+                                //surrender
+                                //pick random member
+                                r = map.randomNum(1,4);
+
+                                //checks that random party member isnt already dead
+                                while (!(game.getMember(r).getName().length() > 0)) {
+                                    r = map.randomNum(1, 4);
+                                }
+                                cout << endl << "You have chosen to surrender " << game.getMember(r).getName() << ". Hope it was worth it." << endl;
+                                game.death(game.getMember(r));
+                                cout << "The remainder of your party has escaped the monster to fight another day." << endl;
+                            }
+                        }
+                    }
+                    else {
+                        cout << endl << "Looks like there are no monsters left at this level... Clear another room to fight higher level monsters." << endl;
+                    }
+
+                    //monster hunger
+                    //no matter outcome of monster battle 
+                    bool misfortune_check = game.misfortuneCalc(50);
+                    if(misfortune_check == true)
+                    {
+                        cout << endl << "\tUnlucky! Each player lost one fullness point after the encounter." << endl << endl;
+                        for(int i = 0; i < 5; i++)
+                        {
+                            //remove one fullness from each player
+                            game.setMemberFullnessAt(i, game.getMember(i).getFullness() - 1);
+                        }
+                    }
                 }
                 num_turns++;
+                map.removeNPC(map.getPlayerRow(), map.getPlayerCol());
             }
-            if(npc_menu == 4)
+            if(npc_menu == 3)
             {
-                cout << "You give up on your adventure? What a shame, I saw this coming too." << endl;
+                cout << "You give up on your adventure? I saw this coming too, what a shame." << endl;
                 //write game stats to a seperate file to then keep track of leaderboard
                 quit = true;
             }
@@ -370,8 +440,11 @@ int main()
                     for(int i = 0; i < 5; i++)
                     {
                         //remove one fullness from each player
-                        game.getMember(i).setFullness(game.getMember(i).getFullness() - 1);
+                        game.setMemberFullnessAt(i, game.getMember(i).getFullness() - 1);
                     }
+                }
+                if (!(map.isExplored(map.getPlayerRow(), map.getPlayerCol()))) {
+                    sorcerer_anger++;
                 }
                 num_turns++;
             }
@@ -383,6 +456,7 @@ int main()
                     //pick monster 2 levels higher
                     Monster m = game.monsterPick(rooms_cleared + 1);
                     //fight monster 
+                    cout << endl << "There is a " << m.getMonsterName() << " inside this room. You and your team will have to fight it." << endl;
                     bool win = game.monsterFight(m);
 
                     if (win) {
@@ -394,16 +468,13 @@ int main()
                         map.removeRoom(map.getPlayerRow(), map.getPlayerCol());
                     }
                     else {
+                        cout << endl << endl << "Your team failed to defeat the monster." << endl << "You have been kicked out of the room. In order to clear the room you must find another key." << endl;
                         //monster fighting consequence
                         if(game.misfortuneCalc(40)) {
                             game.applyMisfortune(in_room);
                         }
-                        else {
-                            //no misfortune
-                        }
                     }
-                } else 
-                {
+                } else {
                     int game_choice = 0;
                     int num_lose = 0;
 
@@ -484,8 +555,11 @@ int main()
                     for(int i = 0; i < 5; i++)
                     {
                         //remove one fullness from each player
-                        game.getMember(i).setFullness(game.getMember(i).getFullness() - 1);
+                        game.setMemberFullnessAt(i, game.getMember(i).getFullness() - 1);
                     }
+                }
+                if (!(map.isExplored(map.getPlayerRow(), map.getPlayerCol()))) {
+                    sorcerer_anger++;
                 }
             }
 
@@ -545,8 +619,56 @@ int main()
                         else if (exploreChance > 30 && exploreChance <= 50) {
                             //fight random monster
                             Monster m = game.monsterPick(rooms_cleared);
-                            cout << BOLDWHITE << "\tOh no! There is a monster occupying this space. You must fight " << m.getMonsterName() << "!" << RESET << endl << endl;
-                            game.monsterFight(m);
+                            if (m.getMonsterName() != "error") {
+                                cout << "OH NO! a " << m.getMonsterName() << " is occupying this space. You have two options: "<< endl;
+                                //make sure monster exists
+                                sleep_for(1s);
+
+                                int fight_menu = 0;
+                                cout << endl << "You now have two options..." << endl;
+                                cout << "\t1) Attack: this can go well if you are well equipped with weapons and armor" << endl;
+                                cout << "\t2) Surrender: leave one of your party members behind and flee the scene" << endl;
+                                cin >> fight_menu;
+
+                                while (fight_menu != 1 && fight_menu != 2) {
+                                    cout << endl << "Invalid Input, please try again." << endl;
+                                    cin >> fight_menu;
+                                }
+
+
+                                if (fight_menu == 1 && game.getNumWeapons() > 0) {    
+                                    //attack
+                                    if (game.monsterFight(m)) {
+                                        cout << endl << "\tYou and your party have managed to win the fight with " << m.getMonsterName() << ". Congratulations!" << endl; 
+                                    } else if (game.getNumWeapons() <= 0) {
+                                        cout << endl << "Your party has no weapons. You must now surrender." << endl;
+                                        fight_menu = 2;
+                                    }
+                                }
+
+                                if (fight_menu == 2) {
+                                    if (game.getNumMembers() >= 1) {
+                                        //surrender
+                                        //pick random member
+                                        int r = map.randomNum(1,4);
+
+                                        //checks that random party member isnt already dead
+                                        while (!(game.getMember(r).getName().length() > 0)) {
+                                            r = map.randomNum(1, 4);
+                                        }
+                                        cout << endl << "You have chosen to surrender " << game.getMember(r).getName() << ". Hope it was worth it." << endl;
+                                        game.death(game.getMember(r));
+                                        cout << "The remainder of your party has escaped the monster to fight another day." << endl;
+                                    }
+                                }
+                            }
+                            else {
+                                cout << endl << "Looks like there are no monsters left at this level... Clear another room to fight higher level monsters." << endl;
+                            }
+                        }   
+                        
+                        else {
+                            cout << endl << "The space appears to be empty..." << endl;
                         }
                         map.exploreSpace(map.getPlayerRow(), map.getPlayerCol());
                         //incremenent num_turns for each action taken, otherwise pretend turn didnt happen and display menu again
@@ -558,19 +680,167 @@ int main()
             if (action_menu == 3) {
                 //pick random monster
                 Monster monster = game.monsterPick(rooms_cleared);
-                cout << "A " << monster.getMonsterName() << " appeared!" << endl;
+                //make sure monster exists
+                if (monster.getMonsterName() != "error") {    //introduce monster
+                    cout << "OH NO! a " << monster.getMonsterName() << " appeared right infront of you. Escaping it will be difficult." << endl;
+                    sleep_for(1s);
 
-                bool outcome = game.monsterFight(monster);
-                //if(outcome)
-                    //cout win and loot
-                //run odds and such
+                    int fight_menu = 0;
+                    cout << endl << "You now have two options..." << endl;
+                    cout << "\t1) Attack: this can go well if you are well equipped with weapons and armor" << endl;
+                    cout << "\t2) Surrender: leave one of your party members behind and flee the scene" << endl;
+                    cin >> fight_menu;
+
+                    while (fight_menu != 1 && fight_menu != 2) {
+                        cout << endl << "Invalid Input, please try again." << endl;
+                        cin >> fight_menu;
+                    }
+
+
+                    if (fight_menu == 1 && game.getNumWeapons() > 0) {    
+                        //attack
+                        if (game.monsterFight(monster)) {
+                            cout << endl << "\tYou and your party have managed to win the fight with " << monster.getMonsterName() << ". Congratulations!" << endl; 
+                        } else if (game.getNumWeapons() <= 0) {
+                            cout << endl << "Your party has no weapons. You must now surrender." << endl;
+                            fight_menu = 2;
+                        }
+                    }
+
+                    if (fight_menu == 2) {
+                        if (game.getNumMembers() >= 1) {
+                            //surrender
+                            //pick random member
+                            int r = map.randomNum(1,4);
+
+                            //checks that random party member isnt already dead
+                            while (!(game.getMember(r).getName().length() > 0)) {
+                                r = map.randomNum(1, 4);
+                            }
+                            cout << endl << "You have chosen to surrender " << game.getMember(r).getName() << ". Hope it was worth it." << endl;
+                            game.death(game.getMember(r));
+                            cout << "The remainder of your party has escaped the monster to fight another day." << endl;
+                        }
+                    }
+                }
+                else {
+                    cout << endl << "Looks like there are no monsters left at this level... Clear another room to fight higher level monsters." << endl;
+                }
+                //monster hunger
+                //no matter outcome of monster battle 
+                bool misfortune_check = game.misfortuneCalc(50);
+                if(misfortune_check == true)
+                {
+                    cout << endl << "\tUnlucky! Each player lost one fullness point after the encounter." << endl << endl;
+                    for(int i = 0; i < 5; i++)
+                    {
+                        //remove one fullness from each player
+                        game.setMemberFullnessAt(i, game.getMember(i).getFullness() - 1);
+                    }
+                }
             }
 
-            //if (action_menu == 4)
+            if (action_menu == 4)
+            {
+                int num_ingredients = 0;
+                int cookware_choice = 0;
+                bool success = false;
+                do
+                {
+                    cout << "How many kg of ingredients would you like to use? (must be in increments of 5kg) " << endl;
+                    cin >> num_ingredients;
 
-            if (action_menu == 5)
+                    while(num_ingredients % 5 != 0)
+                    {
+                        cout << "Please enter a multiple of 5." << endl;
+                        cin >> num_ingredients;
+                    }
+                    if(num_ingredients < 5)
+                    {
+                        cout << "You need at least 5 ingredients to cook anything." << endl;
+                    }
+                    while(num_ingredients > game.getIngredients())
+                    {
+                        cout << "You don't have enough ingredients for that big of a meal." << endl;
+                        cout << "enter a smaller amount of ingredients. " << endl;
+                        cin >> num_ingredients;
+                    }
+                    
+                    if(game.getCookware().size() > 0)
+                    {
+                        cout << "Which cookware would you like to use?" << endl;
+                        for(int i = 0; i < game.getCookware().size(); i++)
+                        {
+                           cout << i+1 << ") " << game.getCookwareAt(i).getName() << endl;   
+                        }
+                        cin >> cookware_choice;
+                        while(cookware_choice > game.getCookware().size() || cookware_choice < 1)
+                        {
+                            cout << "Invalid Input. Please pick again." << endl;
+                            cin >> cookware_choice;
+                        }
+
+                        cout << endl << "Success! Your party has been fed!" << endl;
+                        success = true;
+                        int new_fullness = 0;
+                        new_fullness = num_ingredients / 5;
+                        game.setIngredients(game.getIngredients() - num_ingredients);
+
+                        for(int i = 0; i < 5; i++)
+                        {
+                            if(game.getMember(i).getFullness() + new_fullness <= 50) {
+                            game.setMemberFullnessAt(i, new_fullness + game.getMember(i).getFullness());
+                            }
+                            else if(game.getMember(i).getFullness() + new_fullness > 50) {
+                            game.setMemberFullnessAt(i, 50);
+                            }
+                        }
+                    }
+                    
+
+                } while(num_ingredients >= 5 && game.getCookware().size() > 0 && !success);
+
+                if (success == true) {
+                    if (game.misfortuneCalc(game.getCookwareAt(cookware_choice-1).getBreakChance())) {
+                        cout << endl << "Unlucky";
+                    }
+                }
+
+                num_turns++;
+
+                
+            }
+        
+
+            if (action_menu == 5) {
                 quit = true;
+            }
         }
-    } while (!quit);
-    cout << endl << "The adventurers could not make it out of the dungeon." << endl;
+
+        for (int i = 0; i < 4; i++) {
+            if (game.getMember(i).getFullness() <= 0) {
+                cout << endl << game.getMember(i).getName() << " has died of starvation. Rest In Peace." << endl;
+                game.death(game.getMember(i));
+            }
+        }
+
+        //check num players, counts num players other than user
+        if (game.getNumMembers() < 1)
+            enough_players = false;
+        
+    } while (!quit && enough_players && sorcerer_anger < 100 && game.getMember(0).getName().length() > 0);
+
+    if (quit)
+        cout << endl << "The adventurers could not make it out of the dungeon." << endl;
+
+    if (!enough_players)
+        cout << endl << "Where has your party gone? You cannot escape the dungeon solo." << endl;
+
+    if (sorcerer_anger >= 100)
+        cout << endl << "Game over. You have angered the sorcerer and he has destroyed the dungeon with your party inside it.";
+    
+    if (game.getMember(0).getName().length() == 0) {
+        cout << endl << "Your main character has died. How can you escape the dungeon without a leader?" << endl;
+    }
+    
 }
