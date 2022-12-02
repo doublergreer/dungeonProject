@@ -4,6 +4,7 @@
 #include <thread>
 #include <string>
 #include <vector>
+#include <fstream>
 #include "Monster.h"
 #include "Treasure.h"
 #include "Map.h"
@@ -12,6 +13,7 @@
 #include "Leaderboard.h"
 #include "miscFunctions.cpp"
 #define BOLDWHITE   "\033[1m\033[37m" 
+#define BOLDRED     "\033[1m\033[31m"
 #define RESET   "\033[0m"
 
 using namespace std;
@@ -36,6 +38,24 @@ int main()
     readRiddles("riddles.txt", riddles, 20);
 
     int sorcerer_anger = 0, rooms_cleared = 0, spaces_explored = 0;
+
+    ifstream file;
+    string lines = "";
+
+    file.open("dungeonEscape.txt");
+
+    if(file.is_open())
+    {
+        while (!file.eof())
+        {
+            getline(file, lines);
+            cout << BOLDWHITE << lines << RESET << endl;
+        }
+    }
+    file.close();
+
+    cout << endl << endl << "\t\tLOADING..." << endl;
+    map.spawnRooms();
 
     //Gets the players name and the name of the party members and makes a member class function 
     cout << "Welcome to the dungeon grand adventurer! What is your name and the name of the party members with you?" << endl;
@@ -65,7 +85,6 @@ int main()
     cout << "There are more merchants along the way. But beware, some merchants in this dungeon are shady characters, and they won't always give you a fair price..." << endl << endl;
    
     //generation serves as a pause, takes some time to load, move to game title screen
-    map.spawnRooms();
     map.spawnNPCs();
 
     cout << BOLDWHITE << "You've run into a merchant while entering the dungeon!" << RESET << endl << endl;
@@ -190,7 +209,7 @@ int main()
                 } else if (weapon_choice == 1)
                     cout << "Insufficient Funds" << endl << "No items were purchased. Try again." << endl;
 
-                if (weapon_choice == 2 && game.getGold() >= 2) {
+                else if (weapon_choice == 2 && game.getGold() >= 2) {
                     game.setGold(game.getGold() - 2); 
                     game.setWeaponsAt("Iron Spear", player_index);
                     cout << endl << "Success! Player: " << game.getMember(player_index).getName() << " now has an Iron Spear!" << endl;
@@ -199,7 +218,7 @@ int main()
                 } else if (weapon_choice == 2)
                     cout << "Insufficient Funds" << endl << "No items were purchased. Try again." << endl;
 
-                if (weapon_choice == 3 && game.getGold() >= 5) {
+                else if (weapon_choice == 3 && game.getGold() >= 5) {
                     game.setGold(game.getGold() - 5);
                     game.setWeaponsAt("(+1) Mythril Rapier", player_index);
                     cout << endl << "Success! Player: " << game.getMember(player_index).getName() << " now has a (+1) Mythril Rapier!" << endl;
@@ -208,7 +227,7 @@ int main()
                 } else if (weapon_choice == 3)
                     cout << "Insufficient Funds" << endl << "No items were purchased. Try again." << endl;
 
-                if (weapon_choice == 4 && game.getGold() >= 15) {
+                else if (weapon_choice == 4 && game.getGold() >= 15) {
                     game.setGold(game.getGold() - 15);
                     game.setWeaponsAt("(+2) Flaming Battle-Axe", player_index);
                     cout << endl << "Success! Player: " << game.getMember(player_index).getName() << " now has a (+2) Flaming Battle-Axe!" << endl;
@@ -217,7 +236,7 @@ int main()
                 } else if (weapon_choice == 4)
                     cout << "Insufficient Funds" << endl << "No items were purchased. Try again." << endl;
                 
-                if (weapon_choice == 5 && game.getGold() >= 50) {
+                else if (weapon_choice == 5 && game.getGold() >= 50) {
                     game.setGold(game.getGold() - 50);
                     game.setWeaponsAt("(+3) Vorpal Longsword", player_index);
                     cout << endl << "Success! Player: " << game.getMember(player_index).getName() << " now has a (+3) Vorpal Longsword!" << endl;
@@ -225,6 +244,8 @@ int main()
                     cout << "Thank you for your patronage! You have " << game.getGold() << " remaining gold. What else can I get for you?" << endl << endl;
                 } else if (weapon_choice == 5)
                     cout << "Insufficient Funds" << endl << "No items were purchased. Try again." << endl;
+                else
+                    cout << endl << "Invalid Input. Try again" << endl;
 
             } while (weapon_choice != 6 && player_index < 5);
         }
@@ -237,9 +258,10 @@ int main()
 
             if (game.getGold() >= armor_choice*5) {
                 //assign armor to indivivual members
-                for (int i = 0; i < armor_choice && game.getArmor() >= 5;) {
+                for (int i = 0; i < armor_choice && game.getArmor() <= 5;) {
                     if (!(game.getMember(i).getArmor())) {
-                        game.getMember(i).setArmor(true);
+                        game.setMemberArmor(i, true);
+                        i++;
                     }
                  }
                  game.setArmor(armor_choice + game.getArmor());
@@ -279,12 +301,13 @@ int main()
     }while(merchant_menu != 13);
 
     int num_turns = 1;
-    bool quit = false;
+    bool quit = false, exit = false;
     bool enough_players = true;
     //action loop
     do {
         game.statusUpdate(rooms_cleared, game.getKeys(), sorcerer_anger);
         cout << endl;
+        sleep_for(.5s);
         map.displayMap();
 
         //if space is an npc space display npc menu
@@ -308,10 +331,12 @@ int main()
                     for(int i = 0; i < 5; i++)
                     {
                         //remove one fullness from each player
-                        game.setMemberFullnessAt(i, game.getMember(i).getFullness() - 1);
+                        if (game.getMember(i).getName().length() > 0) {
+                            game.setMemberFullnessAt(i, game.getMember(i).getFullness() - 1);
+                        }
                     }
                 }
-                if (!(map.isExplored(map.getPlayerRow(), map.getPlayerCol()))) {
+                if (!(map.isExplored(map.getPlayerRow(), map.getPlayerCol())) || map.isDungeonExit(map.getPlayerRow(), map.getPlayerCol()) || map.isRoomLocation(map.getPlayerRow(), map.getPlayerCol()) || map.isNPCLocation(map.getPlayerRow(), map.getPlayerCol())) {
                     sorcerer_anger++;
                 }
                 num_turns++;
@@ -392,6 +417,7 @@ int main()
                                 cout << "The remainder of your party has escaped the monster to fight another day." << endl;
                             }
                         }
+                        //monster misfortune
                     }
                     else {
                         cout << endl << "Looks like there are no monsters left at this level... Clear another room to fight higher level monsters." << endl;
@@ -406,7 +432,9 @@ int main()
                         for(int i = 0; i < 5; i++)
                         {
                             //remove one fullness from each player
-                            game.setMemberFullnessAt(i, game.getMember(i).getFullness() - 1);
+                            if (game.getMember(i).getName().length() > 0) {
+                                game.setMemberFullnessAt(i, game.getMember(i).getFullness() - 1);
+                            }
                         }
                     }
                 }
@@ -442,10 +470,12 @@ int main()
                     for(int i = 0; i < 5; i++)
                     {
                         //remove one fullness from each player
-                        game.setMemberFullnessAt(i, game.getMember(i).getFullness() - 1);
+                        if (game.getMember(i).getName().length() > 0) {
+                            game.setMemberFullnessAt(i, game.getMember(i).getFullness() - 1);
+                        }
                     }
                 }
-                if (!(map.isExplored(map.getPlayerRow(), map.getPlayerCol()))) {
+                if (!(map.isExplored(map.getPlayerRow(), map.getPlayerCol())) || map.isDungeonExit(map.getPlayerRow(), map.getPlayerCol()) || map.isRoomLocation(map.getPlayerRow(), map.getPlayerCol()) || map.isNPCLocation(map.getPlayerRow(), map.getPlayerCol())) {
                     sorcerer_anger++;
                 }
                 num_turns++;
@@ -454,6 +484,20 @@ int main()
                 if (game.getKeys() > 0) {
                     bool in_room = true;
                     game.setKeys(game.getKeys() - 1);
+
+                    // if (rooms_cleared == 4) {
+                    //     file.open("wizardImage.txt");
+
+                    //     if(file.is_open())
+                    //     {
+                    //         while (!file.eof())
+                    //         {
+                    //             getline(file, lines);
+                    //             cout << BOLDWHITE << lines << RESET << endl;
+                    //         }
+                    //     }
+                    //     file.close();
+                    // }
 
                     //pick monster 2 levels higher
                     Monster m = game.monsterPick(rooms_cleared + 1);
@@ -477,7 +521,8 @@ int main()
                             game.applyMisfortune(in_room);
                         }
                     }
-                } else {
+                } else 
+                {
                     int game_choice = 0;
                     int num_lose = 0;
 
@@ -488,32 +533,40 @@ int main()
                     cout << "\t3. Parchment" << endl;
                     cin >> game_choice;
 
-                    int result = -1;
-
-                    while (result == -1 && num_lose < 3) {
-                        result = game.doorPuzzle(game_choice);
-                        while(result == 0)
-                        {   
-                            cout << "There was a tie, you must go again!" << endl << endl;
-                            cout << "You have attempted to get inside a room without a key, and as a result you have fallen into a trap." << endl << "In order to get out, you must win a game of boulder, parchment, shears." << endl << "If you lose three times, you will suffer the consequences of your foolishness." << endl << endl;
-                            cout << "Pick one option:" << endl;
-                            cout << "\t1. Boulder" << endl;
-                            cout << "\t2. Shears" << endl;
-                            cout << "\t3. Parchment" << endl;
-                            cin >> game_choice;
-
-                            result = game.doorPuzzle(game_choice);
-                        }
-                        if(result == -1)
-                        {
-                            cout << "Your lost! Two more tries remain! " << endl;
-                            num_lose++;
-                        }
-                        else if(result == 1)
-                        {
-                            cout << "You have won!" << endl;
-                        }
+                    int result = game.doorPuzzle(game_choice);
+    
+                    while(result == 0 && num_lose < 3)
+                    {
+                        cout << "tie" << endl;
+                        cout << "enter choice " << endl;
+                        cout << "1. Boulder" << endl;
+                        cout << "2. Shears" << endl;
+                        cout << "3. Parchment" << endl;
+                        cin >> game_choice;
+                        result = game.doorPuzzle(game_choice); 
                     }
+                    while(result == -1 && num_lose < 3)
+                    {
+                        num_lose++;
+                        cout << "lost" << endl;
+                        cout << "How many times you lost: " << num_lose << endl << endl;
+                        cout << "enter choice " << endl;
+                        cout << "1. Boulder" << endl;
+                        cout << "2. Shears" << endl;
+                        cout << "3. Parchment" << endl;
+                        cin >> game_choice;
+                        result = game.doorPuzzle(game_choice); 
+                
+                    }
+                    if(result == 1 && num_lose <= 3)
+                    {
+                        cout << "won" << endl;
+                    }
+                    if(result == 3)
+                    {
+                        cout << "you are dead" << endl;
+                    }
+                
                     if (num_lose >= 3) {
                         //play rpc
                         int r = map.randomNum(1, 4);
@@ -561,7 +614,7 @@ int main()
                         game.setMemberFullnessAt(i, game.getMember(i).getFullness() - 1);
                     }
                 }
-                if (!(map.isExplored(map.getPlayerRow(), map.getPlayerCol()))) {
+                if (!(map.isExplored(map.getPlayerRow(), map.getPlayerCol())) || map.isDungeonExit(map.getPlayerRow(), map.getPlayerCol()) || map.isRoomLocation(map.getPlayerRow(), map.getPlayerCol()) || map.isNPCLocation(map.getPlayerRow(), map.getPlayerCol())) {
                     sorcerer_anger++;
                 }
             }
@@ -622,9 +675,9 @@ int main()
                         else if (exploreChance > 30 && exploreChance <= 50) {
                             //fight random monster
                             Monster m = game.monsterPick(rooms_cleared);
-                            if (m.getMonsterName() != "error") {
+                            //make sure monster exists
+                            if (m.getMonsterName() != "error" && m.getMonsterName().length() > 0) {
                                 cout << "OH NO! a " << m.getMonsterName() << " is occupying this space. You have two options: "<< endl;
-                                //make sure monster exists
                                 sleep_for(1s);
 
                                 int fight_menu = 0;
@@ -678,7 +731,8 @@ int main()
                         //incremenent num_turns for each action taken, otherwise pretend turn didnt happen and display menu again
                         num_turns++;
                     }
-                }
+                } else
+                    cout << endl << "This space has already been investiaged." << endl;
             }
 
             if (action_menu == 3) {
@@ -823,7 +877,7 @@ int main()
         }
 
         for (int i = 0; i < 4; i++) {
-            if (game.getMember(i).getFullness() <= 0) {
+            if (game.getMember(i).getFullness() <= 0 && game.getMember(i).getName().length() > 0) {
                 cout << endl << game.getMember(i).getName() << " has died of starvation. Rest In Peace." << endl;
                 game.death(game.getMember(i));
             }
@@ -833,27 +887,79 @@ int main()
         if (game.getNumMembers() < 1)
             enough_players = false;
         
-    } while (!quit && enough_players && sorcerer_anger < 100 && game.getMember(0).getName().length() > 0);
+    } while (!quit && enough_players && sorcerer_anger < 100 && game.getMember(0).getName().length() > 0 && !exit);
 
+    //game end scenarios
     if (quit)
-        cout << endl << "The adventurers could not make it out of the dungeon." << endl;
+    {
+        cout << endl << "The adventurers could not make it out of the dungeon." << endl << endl << endl << endl;
+        
+        file.open("gameOver.txt");
+        if(file.is_open())
+        {
+            while (!file.eof())
+            {
+                getline(file, lines);
+                cout << BOLDRED << lines << RESET << endl;
+            }
+        }
+        file.close();
+    }
 
     if (!enough_players)
-        cout << endl << "Where has your party gone? You cannot escape the dungeon solo." << endl;
+    {
+        cout << endl << "Where has your party gone? You cannot escape the dungeon solo." << endl << endl << endl << endl;
+
+        file.open("gameOver.txt");
+        if(file.is_open())
+        {
+            while (!file.eof())
+            {
+                getline(file, lines);
+                cout << BOLDRED << lines << RESET << endl;
+            }
+        }
+        file.close();
+    }
 
     if (sorcerer_anger >= 100)
     {
-        cout << endl << "You have angered the sorcerer and he has destroyed the dungeon with you and your party inside it.";
+        cout << endl << "Sorcerer anger level 100. You have angered the sorcerer and he has destroyed the dungeon with you and your party inside it.";
         for(int i = 0; i < 5; i++)
         {
             game.death(game.getMember(i));
         }
+        cout << endl << endl << endl << endl;
+
+        file.open("gameOver.txt");
+        if(file.is_open())
+        {
+            while (!file.eof())
+            {
+                getline(file, lines);
+                cout << BOLDRED << lines << RESET << endl;
+            }
+        }
+        file.close();
     }
     
-    if (game.getMember(0).getName().length() == 0) {
-        cout << endl << "Your main character has died. How can you escape the dungeon without a leader?" << endl;
+    if (game.getMember(0).getName().length() == 0) 
+    {
+        cout << endl << "Your main character has died. How can you escape the dungeon without a leader?" << endl << endl << endl << endl;
+
+        file.open("gameOver.txt");
+        if(file.is_open())
+        {
+            while (!file.eof())
+            {
+                getline(file, lines);
+                cout << BOLDRED << lines << RESET << endl;
+            }
+        }
+        file.close();
     }
-    
+
+    //write to files
     string leaderboard_name;
     //prompt user for name for leaderboard here
     cout << endl << endl << "Enter a name for the leaderboard: \t";
@@ -862,9 +968,25 @@ int main()
     Leaderboard latest_board(leaderboard_name);
     latest_board.calculateScore(game.getMonstersKilled(), rooms_cleared, sorcerer_anger);
 
-    //leaderboard writing
+    //read leaderboard text file into vector
     vector<Leaderboard> leader_vec;
+    latest_board.readLeaderboard("leaderboard.txt", leader_vec);
+
+    //add user score to board vector
     leader_vec.push_back(latest_board);
+
+    //print vector to screen
+    sleep_for(1s);
+    cout << "________________________________________";
+    cout << endl << "LEADERBOARD" << endl;
+    cout << "________________________________________" << endl;
+    cout << "Player Name:\tScore:" << endl;
+    for (int i = 0; i < leader_vec.size(); i++) {
+        cout << leader_vec.at(i).getName() << "\t" << leader_vec.at(i).getScore() << endl;
+    }
+
+
+    //publish updated vector to leaderboard text file
     latest_board.writeLeaderboard(leader_vec);
 
     //gamestats writing

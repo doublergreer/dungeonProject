@@ -1,11 +1,10 @@
-//Authors Nicolas Post and Ryan Greir 
+//Authors Nicolas Post and Ryan Greer 
 #ifndef INVENTORY_H
 #define INVENTORY_H
 
 #include <iostream>
 #include <vector>
 #include <array>
-
 #include "Cookware.h"
 #include "Treasure.h"
 #include "Member.h"
@@ -25,6 +24,7 @@ class Inventory {
         //setter and getter for total armor
         int getArmor();
         void setArmor(int armor); 
+        void setMemberArmor(int index, bool armor);
 
         //setter and getter for ingredients
         int getIngredients();

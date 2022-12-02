@@ -3,7 +3,7 @@
 #include <iostream>
 #include <chrono>
 #include <thread>
-// #include "Member.h"
+#include <vector>
 #include "Inventory.h"
 #include "Cookware.h"
 #include "Treasure.h"
@@ -65,6 +65,10 @@ int Inventory::getArmor()
 void Inventory::setArmor(int armor)
 {
     armor_ = armor;
+}
+
+void Inventory::setMemberArmor(int index, bool armor) {
+    party_[index].setArmor(armor);
 }
 
 int Inventory::getIngredients()
@@ -205,18 +209,19 @@ void Inventory::printInv() {
 
 //print status each turn
 void Inventory::statusUpdate(int rooms_cleared, int keys, int anger) {
+    sleep_for(.5s);
     cout << "________________________________________" << endl;
     cout << "STATUS:" << endl;
     cout << "\tRooms Cleared: " << rooms_cleared << " | Keys: " << keys << " | Anger Level: " << anger << endl;
-    //sleep_for(1.5s);
+    // sleep_for(.5s);
     printInv();
-    //sleep_for(1.5s);
+    // sleep_for(.5s);
     cout << "PARTY:" << endl;
 
     for (int i = 0; i < 5; i++) 
         cout << "\t" << party_[i].getName() << "\t| Fullness: " << party_[i].getFullness() << endl;
     cout << "________________________________________" << endl;
-    //sleep_for(2s);
+    // sleep_for(.5s);
 }
 
 //monster fight 
@@ -369,6 +374,7 @@ void Inventory::merchantMenu(int rooms_cleared) {
     
 
     do {
+        cout << endl;
         cout << "________________________________________" << endl;
         cout << "MERCHANT MENU:" << endl;
         cout << "________________________________________" << endl;
@@ -494,7 +500,7 @@ void Inventory::merchantMenu(int rooms_cleared) {
                 } else if (weapon_choice == 1)
                     cout << "Insufficient Funds" << endl << "No items were purchased. Try again." << endl;
 
-                if (weapon_choice == 2 &&  getGold() >= (int)(2*price_factor)) {
+                else if (weapon_choice == 2 &&  getGold() >= (int)(2*price_factor)) {
                      setGold(getGold() - (int)(2*price_factor)); 
                      setWeaponsAt("Iron Spear", player_index);
                     cout << endl << "Success! Player: " <<  getMember(player_index).getName() << " now has an Iron Spear!" << endl;
@@ -503,7 +509,7 @@ void Inventory::merchantMenu(int rooms_cleared) {
                 } else if (weapon_choice == 2)
                     cout << "Insufficient Funds" << endl << "No items were purchased. Try again." << endl;
 
-                if (weapon_choice == 3 &&  getGold() >= (int)(5*price_factor)) {
+                else if (weapon_choice == 3 &&  getGold() >= (int)(5*price_factor)) {
                      setGold( getGold() - (int)(5*price_factor));
                      setWeaponsAt("(+1) Mythril Rapier", player_index);
                     cout << endl << "Success! Player: " <<  getMember(player_index).getName() << " now has a (+1) Mythril Rapier!" << endl;
@@ -512,7 +518,7 @@ void Inventory::merchantMenu(int rooms_cleared) {
                 } else if (weapon_choice == 3)
                     cout << "Insufficient Funds" << endl << "No items were purchased. Try again." << endl;
 
-                if (weapon_choice == 4 &&  getGold() >= (int)(15*price_factor)) {
+                else if (weapon_choice == 4 &&  getGold() >= (int)(15*price_factor)) {
                      setGold( getGold() - (int)(15*price_factor));
                      setWeaponsAt("(+2) Flaming Battle-Axe", player_index);
                     cout << endl << "Success! Player: " <<  getMember(player_index).getName() << " now has a (+2) Flaming Battle-Axe!" << endl;
@@ -521,7 +527,7 @@ void Inventory::merchantMenu(int rooms_cleared) {
                 } else if (weapon_choice == 4)
                     cout << "Insufficient Funds" << endl << "No items were purchased. Try again." << endl;
                 
-                if (weapon_choice == 5 &&  getGold() >= (int)(50*price_factor)) {
+                else if (weapon_choice == 5 &&  getGold() >= (int)(50*price_factor)) {
                      setGold(getGold() - (int)(50*price_factor));
                      setWeaponsAt("(+3) Vorpal Longsword", player_index);
                     cout << endl << "Success! Player: " <<  getMember(player_index).getName() << " now has a (+3) Vorpal Longsword!" << endl;
@@ -529,6 +535,8 @@ void Inventory::merchantMenu(int rooms_cleared) {
                     cout << "Thank you for your patronage! You have " <<  getGold() << " remaining gold. What else can I get for you?" << endl << endl;
                 } else if (weapon_choice == 5)
                     cout << "Insufficient Funds" << endl << "No items were purchased. Try again." << endl;
+                else 
+                    cout << endl << "Invalid Input. Try again" << endl;
 
             } while (weapon_choice != 6 && player_index < 5);
         }
@@ -555,8 +563,8 @@ void Inventory::merchantMenu(int rooms_cleared) {
                 cout << "Insufficient funds for " << armor_choice << " suits of armor." << endl;
             else if (armor_choice < 0)  
                 cout << "Invalid Input" << endl;
-            else if (armor_choice + armor_ > 5)
-                cout << "You only have 5 players... where are the extra suits going?" << endl << "No suits were purchased. Try again." << endl;
+            else if (armor_choice + armor_ > getNumMembers()+1)
+                cout << "You only have " << getNumMembers() + 1 << " players... where are the extra suits going?" << endl << "No suits were purchased. Try again." << endl;
                 
             sleep_for(2s);
         }   
@@ -802,6 +810,7 @@ void Inventory::death(Member member)
             party_[i].setFullness(0);
             weapons_[i] = "";
             if (member.getArmor()) {
+                cout << "in";
                 armor_ -= 1;
                 member.setArmor(false);
             }
@@ -817,9 +826,9 @@ int Inventory::doorPuzzle(int choice)
     int boulder = 1;
     int shears = 2;
     int parchment = 3;
-    int num_lose;
+    int num_lose = 0;
 
-    //cout << comp_pick << endl;
+    cout << "This is the wizards choice " << comp_pick << endl;
     
     if(comp_pick == 1)
     {
@@ -827,11 +836,11 @@ int Inventory::doorPuzzle(int choice)
         {
             return 0;
         }
-        else if(choice == 2)
+        if(choice == 2)
         {
             return -1;
         }
-        else if(choice == 3)
+        if(choice == 3)
         {
             return 1;
         }
@@ -842,11 +851,11 @@ int Inventory::doorPuzzle(int choice)
         {
             return 0;
         }
-        else if(choice == 3)
+        if(choice == 3)
         {
             return -1;
         }
-        else if(choice == 1)
+        if(choice == 1)
         {
             return 1;
         }
@@ -857,19 +866,19 @@ int Inventory::doorPuzzle(int choice)
         {
             return 0;
         }
-        else if(choice == 2)
-        {
-            return -1;
-        }
-        else if(choice == 1)
+        if(choice == 2)
         {
             return 1;
         }
+        if(choice == 1)
+        {
+            return -1;
+        }
         
     }
+
+    return -5;
 }
-//if (comp picks rock and you pick scissors) 
-// comp wins
 
  int Inventory::findTreausre(string t_name) {
     for (int i = 0; i < treasures_.size(); i++) {

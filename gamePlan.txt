@@ -78,7 +78,15 @@ slow down room menu; ties into monster fight thingy
 
 FINISH GAME (allow to exit)
 
-You should also save the final stats of the game in a file named results.txt. You can choose the format of this file.
+//You should also save the final stats of the game in a file named results.txt. You can choose the format of this file.
 
-leaderboard order of operations:
-read file into vector, add score to vector, sort vector, print to file, print to screen
+//leaderboard order of operations:
+//read file into vector, add score to vector, sort vector, print to file, print to screen
+
+//add anger for rooms and npcs
+
+//RPC.. at least get the working one that doesnt kill someone 
+
+//score should be a double LOL... everything is rounding to 0
+
+//armor thing is still bugging...

@@ -23,6 +23,7 @@ class Leaderboard {
 
         void writeLeaderboard(vector<Leaderboard> vec);
         void bubbleSort(vector <Leaderboard> & final_score);
+        int readLeaderboard(string file_name, vector<Leaderboard> & vec);
 
     private:
         int score_;

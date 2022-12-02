@@ -35,7 +35,7 @@ void Leaderboard::setName(string name) {
 }
 
 int Leaderboard::calculateScore(int monsters_killed, int rooms_cleared, int sorcerer_anger) {
-    score_ = (monsters_killed + rooms_cleared) / sorcerer_anger;
+    score_ = ((double) (monsters_killed + rooms_cleared) / sorcerer_anger) * 1000;
     
     return score_;
 }
@@ -72,4 +72,87 @@ void swap(vector<Leaderboard>& vec, int startIndex, int endIndex) {
             }
         }
     } while(swapped);
+}
+
+int splitScore(string input_string, char delimiter, string arr[], int arr_size)
+{
+    int index = 0;
+    int length = input_string.length();
+    
+    if(input_string == "")
+        {
+            return 0;
+        }
+
+    for(int i = 0; i < length; i++)
+    {
+        if(input_string[i] == delimiter)
+        {
+            index++;
+            
+            // if(index +1 > arr_size)
+            // {
+            //     return -1;
+            // }
+        }
+
+        else
+        {
+            arr[index] = arr[index] + input_string[i];
+        }
+    }
+    return index + 1;
+}
+
+//read in monster.txt
+//for (count the number of lines) add to monster count
+//initialize the array (num monsters)
+//for (populate the monster array)
+//make a new monster object for each monster listed
+int Leaderboard::readLeaderboard(string file_name, vector<Leaderboard> & vec)
+{
+    ifstream file;
+    string lines = "";
+    int num_scores = 0;
+    int arr_size = 0;
+    
+
+    file.open(file_name);
+
+    //get number of lines 
+    while (getline(file, lines))
+        arr_size++;
+
+    file.close();
+
+    file.open(file_name);
+
+    if(file.is_open())
+    {
+        while (!file.eof())
+        {
+            getline(file, lines);
+
+            if(lines.length() > 0)
+            {
+                string temp[arr_size]; 
+
+                for (int n = 0; n < arr_size; n++)
+                {
+                    temp[n] = ""; //reset the temporary array
+                }
+
+                int split_value = splitScore(lines, ',', temp, arr_size);
+
+                Leaderboard t;
+                t.setName(temp[0]);
+                t.setScore(stoi(temp[1]));
+
+                vec.push_back(t);
+                num_scores++;
+            }
+        }
+    }
+    file.close();
+    return num_scores;
 }
